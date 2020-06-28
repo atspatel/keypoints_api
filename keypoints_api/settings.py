@@ -24,8 +24,7 @@ SECRET_KEY = 'f_g%ca*7u)!pw8se_bxz4_v3_6i1x)77_ri=sjhh)d6lfp+ju('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.0.2.2', 'localhost', '127.0.0.1', '35.200.155.5',
-                 'api-instance-1.asia-south1-c.c.cratappstorage.internal']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '34.105.38.158']
 
 
 # Application definition
