@@ -9,6 +9,7 @@ from django.core.paginator import Paginator, EmptyPage
 from accounts.models import User, AnnonymousUserTable
 from keypoints_account.models import Creator
 from .models import VideoBuffer, VideoPost, VideoLike
+from media_ops.models import VideoUrl
 from tags_models.models import LanguageTag, KeywordsTag
 from tags_models.models import KeypointsTopicTag, KeypointsCategoryTag
 
@@ -17,24 +18,53 @@ from tags_models.serializers import LanguageTagSerializer
 from tags_models.serializers import TopicSerializer, CategorySerializer
 
 from tags_models.views import add_languages, add_categories, add_hashtags, add_topics
-from utils.video_utils import compress_and_hls_video, upload_file, BASE_DIR
+from utils.video_utils import create_video_obj_from_file, upload_file, BASE_DIR
 from utils.image_upload import upload_image
 
 import json
 import os
-import shutil
+
 import hashlib
 import uuid
 
+def post_from_video_obj(video_obj, request):
+    creator_obj, _ = Creator.objects.get_or_create(user=request.user)
+    title = request.data.get('title', None)
+    ext_url = request.data.get('url', '')
+    ext_url = ext_url if len(ext_url) > 0 else None
+
+    languages = json.loads(request.data.get(
+        'languages', json.dumps({})))
+    categories = json.loads(request.data.get(
+        'categories', json.dumps({})))
+    
+    post_obj = VideoPost.objects.create(
+                        video=video_obj, 
+                        creator=creator_obj,
+                        title=title,
+                        external_urls=ext_url)
+    post_obj, _= add_languages(languages.values(), post_obj)
+    post_obj, _= add_categories(categories.values(), post_obj)
+    post_obj.save()
+
+    num_of_posts = max(creator_obj.num_of_posts, 0)
+    creator_obj.num_of_posts = num_of_posts + 1
+    creator_obj.save()
+    print(post_obj.id, 'created ----------')
+    return post_obj
+
+
 class ResponseThen(Response):
-    def __init__(self, data, then_callback, filename, **kwargs):
+    def __init__(self, data, then_callback, filename, video_hash, request, **kwargs):
         super().__init__(data, **kwargs)
         self.filename = filename
+        self.request = request
+        self.video_hash = video_hash
         self.then_callback = then_callback
 
     def close(self):
         super().close()
-        self.then_callback(self.filename)
+        self.then_callback(self.filename, self.video_hash, self.request)
 
 class VideoUploadView(APIView):
     def get(self, request):
@@ -45,79 +75,43 @@ class VideoUploadView(APIView):
         print(user)
         if user.is_anonymous:
             return Response({'status': False, 'message': 'AuthError'})
-        creator_obj, _ = Creator.objects.get_or_create(user=user)
-        thumbnail_image = request.data.get('thumbnail_image', None)
-        title = request.data.get('title', None)
-        ext_url = request.data.get('url', '')
-        ext_url = ext_url if len(ext_url) > 0 else None
-
+        
         video_file = request.data.get('video_file', None)
-
         file_ext = video_file.name.rsplit('.', 1)[1]
         file_ext = file_ext if len(file_ext) > 0 else 'mp4'
-        filepath = os.path.join(BASE_DIR, "video_%s.%s"%(uuid.uuid4(), file_ext))
-
-        print(filepath, "saving to this........")
-
+        temp_filepath = os.path.join(BASE_DIR, "video_%s.%s"%(uuid.uuid4(), file_ext))
         video_hash = hashlib.sha256()
-        print(video_hash, "....video_hash.......")
-        with open(filepath, 'wb+') as thefile:
+        with open(temp_filepath, 'wb+') as thefile:
             for chunk in video_file.chunks():
                 video_hash.update(chunk)
                 thefile.write(chunk)
         video_hash = video_hash.hexdigest()
-        video_obj = VideoPost.objects.filter(video_hash=video_hash).first()
-        if video_obj:
-            os.remove(filepath)
-            return Response({'status': False, 'message': 'video already exists'})
         
-        video_url = upload_file(filepath, video_file.name, 'original')
+        video_obj = VideoUrl.objects.filter(video_hash=video_hash).first()
+        if video_obj:
+            os.remove(temp_filepath)
+            post_obj = VideoPost.objects.filter(video=video_obj).first()
+            if post_obj:
+                return Response({'status': False, 'message': 'Video already exists', "id": post_obj.id})
 
-        def do_after(filepath):
-            filepath, f_compressed, (video_folder, foutput) = compress_and_hls_video(filepath)
-            _, folder_name = os.path.split(video_folder)
-            valid_ext = ('.ts', '.m3u8', '.mp4')
-            video_m3u8_url = None
-            compressed_url = None
+            post_obj = post_from_video_obj(video_obj, request)
+            return Response({'status': True, 'message': 'Post Created', "id": post_obj.id})
 
-            for f in os.listdir(video_folder):
-                if f.endswith(valid_ext):
-                    f_path = os.path.join(video_folder, f)
-                    file_url = upload_file(f_path, f, 'videos/%s'%(folder_name))
-                    if f_path == foutput:
-                        video_m3u8_url = file_url
-                    if f_path == f_compressed:
-                        compressed_url = file_url
-            
-            video_obj = VideoPost.objects.create(video_hash=video_hash, 
-                                        url=video_m3u8_url, 
-                                        original_url=video_url, 
-                                        compressed_url=compressed_url,
-                                        creator=creator_obj,
-                                        source='KeyPoints',
-                                        title=title,
-                                        external_urls=ext_url,
-                                        thumbnail_image=thumbnail_image
-                                        )
-            languages = json.loads(request.data.get(
-                'languages', json.dumps({})))
-            categories = json.loads(request.data.get(
-                'categories', json.dumps({})))
-            video_obj, _= add_languages(languages.values(), video_obj)
-            video_obj, _= add_categories(categories.values(), video_obj)
-            video_obj.save()
+        filepath = os.path.join(BASE_DIR, "video_%s.%s"%(video_hash[:16], file_ext))
+        os.rename(temp_filepath, filepath)
 
-            num_of_posts = max(creator_obj.num_of_posts, 0)
-            creator_obj.num_of_posts = num_of_posts + 1
-            creator_obj.save()
-
-            shutil.rmtree(video_folder)
+        def do_after(filepath, video_hash, request):
+            thumbnail_image = request.data.get('thumbnail_image', None)
+            video_obj = create_video_obj_from_file(filepath, video_hash, thumbnail_image, user=None)
+            post_obj = post_from_video_obj(video_obj, request)
             os.remove(filepath)
-            print(video_obj.id, '-------')
-        return ResponseThen({'status': True, 'message': 'Video Uploaded, will be available on timeline soon.'}, 
-                                do_after, 
-                                filepath,
-                                status=status.HTTP_200_OK)
+            return True
+
+        data = {
+                'status': True, 
+                'message': 'Video Uploaded, will be available on timeline soon.'
+                }
+        return ResponseThen(data, do_after, filepath, video_hash, request, status=status.HTTP_200_OK)
 
 
 class VideoPostView(APIView):

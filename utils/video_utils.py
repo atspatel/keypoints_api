@@ -8,7 +8,9 @@ from django.core.files import File
 
 from urllib.parse import urljoin
 from django.conf import settings
-import hashlib
+import shutil
+
+from media_ops.models import VideoUrl
 
 BASE_DIR = "./z_data/videos/"
 if not os.path.isdir(BASE_DIR):
@@ -59,6 +61,36 @@ def upload_file(file_path, name, path="videos"):
         "%s/%s" % (path, name), File(open(file_path, 'rb')))
     file_url = urljoin(settings.GS_STATIC_URL, file_path)
     return file_url
+
+
+def create_video_obj_from_file(filepath, video_hash, thumbnail_image, user=None):
+    _, filename = os.path.split(filepath)
+    video_url = upload_file(filepath, filename, 'original')
+    video_obj = VideoUrl.objects.create(
+        video_hash=video_hash, url=video_url, thumbnail_img=thumbnail_image, created_by=user)
+
+    filepath, f_compressed, (video_folder,
+                             foutput) = compress_and_hls_video(filepath)
+
+    _, folder_name = os.path.split(video_folder)
+    valid_ext = ('.ts', '.m3u8', '.mp4')
+    hls_url = None
+    compressed_url = None
+    for f in os.listdir(video_folder):
+        if f.endswith(valid_ext):
+            f_path = os.path.join(video_folder, f)
+            file_url = upload_file(f_path, f, 'videos/%s' % (folder_name))
+            if f_path == foutput:
+                hls_url = file_url
+            if f_path == f_compressed:
+                compressed_url = file_url
+    video_obj.hls_url = hls_url
+    video_obj.compressed_url = compressed_url
+    video_obj.source = 'KeyPoints'
+    video_obj.save()
+
+    shutil.rmtree(video_folder)
+    return video_obj
 
 
 def upload_folder():

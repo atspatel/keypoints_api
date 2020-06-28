@@ -31,15 +31,22 @@ class ImagesUrl(AbstractTimeClass):
 class VideoUrl(AbstractTimeClass):
     video_hash = models.CharField(max_length=300, unique=True)
     url = models.URLField(max_length=300, validators=[
-                          url_validator], unique=True)
+        url_validator], unique=True)
+    thumbnail_img = models.URLField(max_length=300, validators=[
+        url_validator], null=True, blank=True)
 
-    original_url = models.URLField(max_length=500, validators=[
+    hls_url = models.URLField(max_length=500, validators=[
         url_validator], blank=True, null=True)
     compressed_url = models.URLField(max_length=500, validators=[
         url_validator], blank=True, null=True)
 
-    thumbnail_img = models.URLField(max_length=300, validators=[
-                                    url_validator], null=True, blank=True)
     duration = models.DurationField(null=True)
     media_type = models.CharField(max_length=100, default='video/mp4')
     source = models.CharField(max_length=50, default="KeyPoints")
+
+    @property
+    def display_url(self):
+        if self.hls_url:
+            return self.hls_url
+        else:
+            return self.url

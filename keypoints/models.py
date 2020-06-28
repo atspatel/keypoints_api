@@ -29,29 +29,13 @@ class AbstractTimeClass(models.Model):
 
 class VideoPost(AbstractTimeClass):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    # video_obj = models.ForeignKey(VideoUrl, on_delete=models.CASCADE)
-
-    # TODO:: Remove this and change Views and Serializers
-    video_hash = models.CharField(
-        max_length=300, unique=True, null=True, blank=True)
-    url = models.URLField(max_length=500, validators=[
-                          url_validator], unique=True)
-    original_url = models.URLField(max_length=500, validators=[
-        url_validator], unique=True, blank=True, null=True)
-    compressed_url = models.URLField(max_length=500, validators=[
-        url_validator], unique=True, blank=True, null=True)
-    thumbnail_image = models.URLField(max_length=500, validators=[
-        url_validator], null=True)
-    duration = models.DurationField(null=True)
-    ###
-
-    external_urls = models.URLField(max_length=500, validators=[
-        url_validator], blank=True, null=True)
-    source = models.CharField(max_length=50, null=True)  # KeyPoints or YouTube
-    title = models.TextField(null=True)
+    video = models.ForeignKey(VideoUrl, on_delete=models.CASCADE)
 
     creator = models.ForeignKey(
         Creator, blank=False, null=True, on_delete=models.SET_NULL)
+    title = models.TextField(null=True)
+    external_urls = models.URLField(max_length=500, validators=[
+        url_validator], blank=True, null=True)
     categories = models.ManyToManyField(KeypointsCategoryTag, blank=True)
     languages = models.ManyToManyField(LanguageTag, blank=True)
     topics = models.ManyToManyField(KeypointsTopicTag, blank=True)
@@ -60,6 +44,28 @@ class VideoPost(AbstractTimeClass):
     views = models.IntegerField(default=0)
     likes = models.IntegerField(default=0)
     shared = models.IntegerField(default=0)
+
+    @property
+    def source(self):
+        if self.video:
+            return self.video.source
+        return None
+
+    @property
+    def thumbnail_image(self):
+        if self.video:
+            return self.video.thumbnail_img
+        return None
+
+    @property
+    def url(self):
+        if self.video:
+            if self.video.hls_url:
+                return self.video.hls_url
+            if self.video.compressed_url:
+                return self.video.compressed_url
+            return self.video.url
+        return None
 
 
 class VideoBuffer(AbstractTimeClass):

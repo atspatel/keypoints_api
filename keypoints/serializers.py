@@ -58,12 +58,10 @@ class VideoPostSerializer(serializers.ModelSerializer):
 
     def get_video_id(self, obj):
         video_id = None
-        if obj.source == "youtube":
+        if obj.video.source == "youtube":
             url = obj.url
             video_ids = parse_qs(urlparse.urlparse(url).query).get('v', [])
-            video_id = None
-            if len(video_ids) > 0:
-                video_id = video_ids[0]
+            video_id = video_ids[0] if len(video_ids) > 0 else None
         return video_id
 
     def get_languages_data(self, obj):
@@ -92,6 +90,6 @@ class VideoPostSerializer(serializers.ModelSerializer):
             return True if like_obj else False
 
     def get_share_url(self, obj):
-        if obj.source != 'youtube':
-            return obj.compressed_url if obj.compressed_url else obj.original_url
-        return obj.url
+        if obj.video.source != 'youtube':
+            return obj.video.compressed_url if obj.video.compressed_url else obj.video.url
+        return obj.video.url

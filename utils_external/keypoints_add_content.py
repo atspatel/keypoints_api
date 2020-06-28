@@ -3,6 +3,7 @@ from django.http import HttpRequest, QueryDict
 
 from keypoints_account.models import Creator
 from keypoints.models import VideoPost
+from media_ops.models import VideoUrl
 from tags_models.models import KeypointsCategoryTag, KeypointsTopicTag
 from tags_models.models import LanguageTag, KeywordsTag
 
@@ -27,6 +28,7 @@ for row in df.itertuples():
     languages = row.languages
     topics = row.topics
     hashtags = row.hashtags
+    video_hash = hashlib.sha224(video_url.encode('utf-8')).hexdigest()
 
     video_info = get_website_info(video_url)
     title = video_info['title']
@@ -37,13 +39,17 @@ for row in df.itertuples():
     creator_obj = Creator.objects.filter(user__first_name=user_name).first()
     if not creator_obj:
         print('Creator Not Found ::: ', user_name)
-    videoPost_obj, _ = VideoPost.objects.update_or_create(
-        url=video_url, defaults={'title': video_title,
-                                 'thumbnail_image': media_thumbnail,
-                                 #  "duration": duration,
-                                 "creator": creator_obj,
-                                 "source": "youtube"})
 
+    video_obj, _ = VideoUrl.objects.update_or_create(video_hash=video_hash,
+                                                     url=video_url, defaults={
+                                                         "thumbnail_img": media_thumbnail,
+                                                         "created_by": creator_obj.user,
+                                                         "source": "youtube"})
+    post_obj, _ = VideoPost.objects.update_or_create(
+        video=video_obj, defaults={
+            "creator": creator_obj,
+            "title": video_title}
+    )
     categories = [] if pd.isnull(categories) else categories.split(', ')
     for category in categories:
         if(category == "General"):
@@ -51,7 +57,7 @@ for row in df.itertuples():
         key = re.sub("[^a-z]+", "", category.lower())
         category_obj = KeypointsCategoryTag.objects.filter(key=key).first()
         if category_obj:
-            videoPost_obj.categories.add(category_obj)
+            post_obj.categories.add(category_obj)
         else:
             print("Category not found :: ", category)
 
@@ -60,7 +66,7 @@ for row in df.itertuples():
         key = re.sub("[^a-z]+", "", language.lower())
         language_obj = LanguageTag.objects.filter(key=key).first()
         if language_obj:
-            videoPost_obj.languages.add(language_obj)
+            post_obj.languages.add(language_obj)
         else:
             print("language not found :: ", language)
 
@@ -71,7 +77,7 @@ for row in df.itertuples():
             continue
         topic_obj, _ = KeypointsTopicTag.objects.get_or_create(
             key=key, defaults={'tag': topic})
-        videoPost_obj.topics.add(topic_obj)
+        post_obj.topics.add(topic_obj)
 
     hashtags = [] if pd.isnull(hashtags) else hashtags.split('#')
     for hashtag in hashtags:
@@ -81,6 +87,6 @@ for row in df.itertuples():
             continue
         keywords_obj, _ = KeywordsTag.objects.get_or_create(
             key=key, defaults={'tag': hashtag})
-        videoPost_obj.hashtags.add(keywords_obj)
+        post_obj.hashtags.add(keywords_obj)
 
-    videoPost_obj.save()
+    post_obj.save()
