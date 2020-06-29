@@ -6,7 +6,7 @@ from accounts.models import User
 # KeypointsCategoryTag.objects.all().delete()
 
 categories = [['Explore', 1], ['Politics', 2], ['World', 3], [
-    'Sports', 4], ['Teh', 5], ['Markets', 6], ['Entertainment', 7]]
+    'Sports', 4], ['Tech', 5], ['Markets', 6], ['Entertainment', 7]]
 languages = [['English', 1], ['Hindi', 1]]
 
 user_obj = User.objects.filter(phone='8953457318').first()

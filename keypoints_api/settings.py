@@ -100,10 +100,10 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'keypointapp',
-        'USER': 'atish',
-        'PASSWORD': '123456789',
-        'HOST': 'localhost',
+        'NAME': os.environ['DB_NAME_DJANGO'],
+        'USER': os.environ['DB_USER_DJANGO'],
+        'PASSWORD': os.environ['DB_PASSWORD_DJANGO'],
+        'HOST': os.environ['DB_HOST'],
         'PORT': '5432',
     }
 }
