@@ -2,8 +2,6 @@ from .views import VideoPostView, VideoBufferView, VideoUploadView
 from .views import VideoLikeView, VideoReshareView, ThumbnailView
 from .views import CategoryView, TopicView, HashtagView, OptionsView
 
-from .views import WaitView
-
 from django.urls import path
 from django.conf.urls import url, include
 
@@ -43,7 +41,4 @@ urlpatterns = [
     path('hashtag/<suggestion_text>/',
          HashtagView.as_view(), name="get_hashtag"),
     path('get_options/', OptionsView.as_view(), name='get_options'),
-
-
-    path('wait/', WaitView.as_view(), name="wait")
 ]

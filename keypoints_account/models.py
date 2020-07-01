@@ -113,3 +113,14 @@ class CreatorFollowerTable(AbstractTimeClass):
 
     class Meta:
         unique_together = ["follower", "followee"]
+
+
+class KeywordFollowerTable(AbstractTimeClass):
+    follower = models.ForeignKey(
+        AnnonymousUserTable, related_name='%(class)s_follower', on_delete=models.CASCADE)
+    followee = models.ForeignKey(
+        KeywordsTag, related_name='%(class)s_followee', on_delete=models.CASCADE, null=True)
+    is_logged_in = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ["follower", "followee"]

@@ -10,8 +10,8 @@ from django.db.models import Value, Count, Q
 from django.core.paginator import Paginator, EmptyPage
 
 from accounts.models import User, AnnonymousUserTable
-from .models import Creator, CreatorFollowerTable, KeyPointsUserPreference
-from tags_models.models import LanguageTag, KeypointsCategoryTag
+from .models import Creator, CreatorFollowerTable, KeywordFollowerTable, KeyPointsUserPreference
+from tags_models.models import LanguageTag, KeypointsCategoryTag, KeywordsTag
 
 from .serializers import UserMiniSerializer, UserSerializer
 
@@ -27,13 +27,24 @@ import shutil
 import hashlib
 
 
+def update_creator_follow_count(user_obj):
+    creator_obj = Creator.objects.filter(
+        user=user_obj).first()
+    if creator_obj:
+        follow_count = CreatorFollowerTable.objects.filter(
+            followee=user_obj).count()
+        creator_obj.followers = follow_count
+        creator_obj.save()
+    return creator_obj
+
+
 class CreatorView(APIView):
     def get(self, request, suggestion_text=None):
         if(suggestion_text):
             user_list = Creator.objects.annotate(
                 fullname=Concat('user__first_name',
                                 Value(' '), 'user__last_name')
-            ).filter(fullname__icontains=suggestion_text).values_list('user', flat=True).distinct()
+            ).filter(Q(fullname__icontains=suggestion_text) | Q(username__icontains=suggestion_text)).values_list('user', flat=True).distinct()
             queryset = User.objects.filter(id__in=user_list)
         else:
             user_id = request.GET.get('user_id', None)
@@ -127,6 +138,18 @@ class FollowView(APIView):
                         return Response({'status': True, "is_followed": False, 'id': user_obj.id})
                 else:
                     return Response({'status': False, 'message': 'User Obj not found'})
+            elif category == 'hashtag':
+                hashtag_obj = KeywordsTag.objects.filter(
+                    id=qid).first() if qid else None
+                if hashtag_obj:
+                    follow_obj = KeywordFollowerTable.objects.filter(
+                        follower=ann_obj, followee=hashtag_obj).first()
+                    if follow_obj:
+                        return Response({'status': True, "is_followed": True, 'id': hashtag_obj.id})
+                    else:
+                        return Response({'status': True, "is_followed": False, 'id': hashtag_obj.id})
+                else:
+                    return Response({'status': False, 'message': 'Hashtag Obj not found'})
             else:
                 return Response({'status': False, 'message': 'Category do not match'})
         else:
@@ -150,11 +173,27 @@ class FollowView(APIView):
                     if action == "follow":
                         follow_obj, _ = CreatorFollowerTable.objects.update_or_create(
                             follower=ann_obj, followee=user_obj, defaults={'is_logged_in': is_loggedIn})
+                        update_creator_follow_count(user_obj)
                         return Response({'status': True, "is_followed": True, 'category': category, 'id': user_obj.id})
                     elif action == "unfollow":
                         follow_obj = CreatorFollowerTable.objects.filter(
                             follower=ann_obj, followee=user_obj).delete()
+                        update_creator_follow_count(user_obj)
                         return Response({'status': True, "is_followed": False, 'category': category, 'id': user_obj.id})
+                else:
+                    return Response({'status': False, 'message': 'User Obj not found'})
+            if category == "hashtag":
+                hashtag_obj = KeywordsTag.objects.filter(
+                    id=qid).first() if qid else None
+                if hashtag_obj:
+                    if action == "follow":
+                        follow_obj, _ = KeywordFollowerTable.objects.update_or_create(
+                            follower=ann_obj, followee=hashtag_obj, defaults={'is_logged_in': is_loggedIn})
+                        return Response({'status': True, "is_followed": True, 'category': category, 'id': hashtag_obj.id})
+                    elif action == "unfollow":
+                        follow_obj = KeywordFollowerTable.objects.filter(
+                            follower=ann_obj, followee=hashtag_obj).delete()
+                        return Response({'status': True, "is_followed": False, 'category': category, 'id': hashtag_obj.id})
                 else:
                     return Response({'status': False, 'message': 'User Obj not found'})
             else:
@@ -215,3 +254,18 @@ class KeyPointsPreferenceView(APIView):
             'status': True,
             'preference_id': prefrence_obj.id
         })
+
+
+class UserNameCheck(APIView):
+    def get(self, request, username=None):
+        user = request.user
+        if username and len(username) > 3:
+            creator_obj = Creator.objects.filter(
+                username__iexact=username).first()
+            if creator_obj and creator_obj.user != user:
+                return Response({"status": False})
+            return Response({'status': True})
+        return Response({'status': False})
+
+    def post(self, request):
+        pass

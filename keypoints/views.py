@@ -7,7 +7,7 @@ from rest_framework import status
 from django.core.paginator import Paginator, EmptyPage
 
 from accounts.models import User, AnnonymousUserTable
-from keypoints_account.models import Creator
+from keypoints_account.models import Creator, KeywordFollowerTable
 from .models import VideoBuffer, VideoPost, VideoLike
 from media_ops.models import VideoUrl
 from tags_models.models import LanguageTag, KeywordsTag
@@ -28,7 +28,11 @@ import hashlib
 import uuid
 
 def post_from_video_obj(video_obj, request):
-    creator_obj, _ = Creator.objects.get_or_create(user=request.user)
+    creator_obj = Creator.objects.filter(user=request.user).first()
+    if not creator_obj:
+        user = request.user
+        username = "%s.%s"%(user.first_name.replace(' ', '').lower(), str(user.id)[:-4])
+        creator_obj = Creator.objects.create(user=request.user, username=username)
     title = request.data.get('title', None)
     ext_url = request.data.get('url', '')
     ext_url = ext_url if len(ext_url) > 0 else None
@@ -422,9 +426,3 @@ class OptionsView(APIView):
         pass
 
 
-import time
-class WaitView(APIView):
-    def get(self, request):
-        s_time = time.time()
-        time.sleep(200)
-        return Response({'status': True, 'wait': time.time() - s_time})

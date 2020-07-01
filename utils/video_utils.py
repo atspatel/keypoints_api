@@ -44,7 +44,7 @@ def convert_to_hls_video(finput):
 
     video = ffmpeg_streaming.input(finput)
     hls = video.hls(Formats.h264(), hls_list_size=0, hls_time=5)
-    hls.auto_generate_representations([480, 360, 240], include_original=False)
+    hls.auto_generate_representations([480, 360, 240])
     hls.output(foutput)
     return path, foutput
 
@@ -52,6 +52,8 @@ def convert_to_hls_video(finput):
 def compress_and_hls_video(finput):
     f_original, f_compressed = compress_video(finput)
     print('-- here --', f_original, f_compressed)
+    # f_original = finput
+    # f_compressed = finput
     return f_original, f_compressed, convert_to_hls_video(f_compressed)
 
 

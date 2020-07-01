@@ -1,10 +1,13 @@
 from django.urls import path
 from django.conf.urls import url, include
 
-from .views import CreatorView, FollowView, KeyPointsPreferenceView
+from .views import CreatorView, FollowView, KeyPointsPreferenceView, UserNameCheck
 
 urlpatterns = [
     path('creators/', CreatorView.as_view(), name="get_post_creator"),
+
+    path('check_username/<username>/',
+         UserNameCheck.as_view(), name="get_post_creator"),
     path('creators/<suggestion_text>/',
          CreatorView.as_view(), name="get_creator"),
 
