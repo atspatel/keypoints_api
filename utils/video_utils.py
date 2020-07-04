@@ -9,8 +9,10 @@ from django.core.files import File
 from urllib.parse import urljoin
 from django.conf import settings
 import shutil
+import hashlib
 
 from media_ops.models import VideoUrl
+from utils.image_upload import upload_external_image_content_string
 
 BASE_DIR = "./z_data/videos/"
 if not os.path.isdir(BASE_DIR):
@@ -99,6 +101,29 @@ def upload_folder():
     pass
 
 
-if __name__ == "__main__":
-    finput = "./z_data/videos/video_6a39022e-d0c1-4bd7-9854-4aa4d8bfbe01.mp4"
-    compress_and_hls_video(finput)
+def create_thumbnail_local_video(filePath, user=None):
+    folder, filename = os.path.split(filePath)
+    base_name = filename.rsplit('.', 1)[0]
+    thumbnail_name = "thumb_%s.jpg" % (base_name)
+    thumbnail_path = os.path.join(folder, thumbnail_name)
+    if os.path.isfile(thumbnail_path):
+        os.remove(thumbnail_path)
+    ff = FFmpeg(inputs={filePath: None}, outputs={
+                thumbnail_path: ['-ss', '00:00:04', '-vframes', '1']})
+    ff.run()
+
+    content_string = open(thumbnail_path, 'rb').read()
+    image_obj = upload_external_image_content_string(
+        content_string, thumbnail_name, user=user)
+    print(image_obj)
+    return image_obj.thumbnail_img
+
+
+def create_video_hash(filePath):
+    video_hash = hashlib.sha256()
+    b = bytearray(128*1024)
+    mv = memoryview(b)
+    with open(filePath, 'rb', buffering=0) as f:
+        for n in iter(lambda: f.readinto(mv), 0):
+            video_hash.update(mv[:n])
+    return video_hash.hexdigest()

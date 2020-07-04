@@ -9,6 +9,7 @@ from tags_models.models import LanguageTag, KeywordsTag
 
 from utils.website_info import get_website_info
 from utils.text_utils import text_to_query
+from utils.video_utils import create_thumbnail_local_video, create_video_hash, create_video_obj_from_file
 
 import pandas as pd
 import random
@@ -17,38 +18,41 @@ import re
 
 import string
 
+exclude_keys = ["highlites", "mondaymotivation", "thursdayvibes", "tuesdaythoughts",
+                "thursdaymorning", "sundaythoughts", "tuesdaymotivation", "wednesdaywisdom"]
+
 csv_file = "./z_data/video_seed_content.csv"
 df = pd.read_csv(csv_file)
 
+# finput = "./z_data/content_videos/UGU1BQsWIKXWF55X.mp4"
+# create_thumbnail_local_video(finput)
+
 for row in df.itertuples():
-    video_url = row.video_url
-    video_title = row.video_title
+    video_filename = row.video_file_name
+    filePath = os.path.join("./z_data/content_videos/", video_filename)
+    title = row.video_title
     user_name = row.user_id.strip()
     categories = row.categories
     languages = row.languages
     topics = row.topics
     hashtags = row.hashtags
-    video_hash = hashlib.sha224(video_url.encode('utf-8')).hexdigest()
+    ext_url = row.ext_url
 
-    video_info = get_website_info(video_url)
-    title = video_info['title']
-    duration = video_info['duration']
-    media_thumbnail = video_info['image_url'][0] if(
-        len(video_info['image_url']) > 0) else None
+    video_hash = create_video_hash(filePath)
+    thumbnail_image = create_thumbnail_local_video(filePath)
 
     creator_obj = Creator.objects.filter(user__first_name=user_name).first()
     if not creator_obj:
         print('Creator Not Found ::: ', user_name)
-
-    video_obj, _ = VideoUrl.objects.update_or_create(video_hash=video_hash,
-                                                     url=video_url, defaults={
-                                                         "thumbnail_img": media_thumbnail,
-                                                         "created_by": creator_obj.user,
-                                                         "source": "youtube"})
+    video_obj = VideoUrl.objects.filter(video_hash=video_hash).first()
+    if not video_obj:
+        video_obj = create_video_obj_from_file(
+            filePath, video_hash, thumbnail_image, user=creator_obj.user)
     post_obj, _ = VideoPost.objects.update_or_create(
         video=video_obj, defaults={
             "creator": creator_obj,
-            "title": video_title}
+            "title": title,
+            "external_urls": ext_url}
     )
     categories = [] if pd.isnull(categories) else categories.split(', ')
     for category in categories:
@@ -84,6 +88,8 @@ for row in df.itertuples():
         hashtag = hashtag.strip()
         key = text_to_query(hashtag)
         if not key:
+            continue
+        if key in exclude_keys:
             continue
         keywords_obj, _ = KeywordsTag.objects.get_or_create(
             key=key, defaults={'tag': hashtag})

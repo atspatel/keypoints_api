@@ -44,6 +44,8 @@ class KeypointsCategoryTag(AbstractTimeClass):
     tag = models.TextField()
     index = models.IntegerField(default=999)
     num_of_posts = models.IntegerField(default=0)
+    thumbnail_img = models.URLField(max_length=500, validators=[
+        url_validator], null=True, blank=True)
 
     def __str__(self):
         return "%s--%s" % (self.index, self.tag)

@@ -17,6 +17,8 @@ df = pd.read_csv(csv_file)
 
 all_creator = Creator.objects.all().update(is_active=False)
 
+Creator.objects.all().delete()
+
 for row in df.itertuples():
     index = row.user_id
     user_name = row.user_name.strip()

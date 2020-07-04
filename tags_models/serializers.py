@@ -25,10 +25,10 @@ class LanguageTagSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = KeypointsCategoryTag
-        fields = ('id', 'tag')
+        fields = ('id', 'tag', 'thumbnail_img')
 
     def to_representation(self, value):
-        return {"id": value.id, "name": value.tag}
+        return {"id": value.id, "name": value.tag, "thumbnail": value.thumbnail_img}
 
 
 class TopicSerializer(serializers.ModelSerializer):
