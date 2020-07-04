@@ -17,6 +17,11 @@ import constants
 
 MAX_OTP_ATTEMPT = 10
 
+# TEST_USER_BLOCK
+TEST_PHONE = "1357908642"
+TEST_OTP = "2468"
+#######
+
 
 def validate_otp(phone_number, otp):
     user_otp_info = UserOTPTable.objects.filter(
@@ -24,9 +29,11 @@ def validate_otp(phone_number, otp):
     if user_otp_info:
         user_otp = str(user_otp_info.otp)
         if user_otp == str(otp):
-            user_otp_info.delete()
+            # TEST_USER_BLOCK
+            if(phone_number != TEST_PHONE):
+                #####
+                user_otp_info.delete()
             user, created = User.objects.get_or_create(phone=phone_number)
-            print("----", user, created)
             return user, created
     return None, None
 
@@ -52,6 +59,18 @@ class OTPRegisterOps(APIView):
 
     @staticmethod
     def _create_otp(phone_number):
+        # TEST_USER_BLOCK
+        if(phone_number == TEST_PHONE):
+            otp = TEST_OTP
+            user_info, _ = UserOTPTable.objects.update_or_create(
+                phone=phone_number, defaults={"otp": otp, "count": 0})
+            return {
+                'status': True,
+                'debug': "SUCCESS",
+                'message': "OTP sent for Test User",
+                'count': user_info.count
+            }
+        ####
         otp = create_otp()
         user_info, _ = UserOTPTable.objects.get_or_create(phone=phone_number,
                                                           defaults={"otp": otp, "count": 0})
