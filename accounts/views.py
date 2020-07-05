@@ -244,7 +244,7 @@ def check_time_validation(updated_time):
 
 
 def send_otp_to_user(phone_number, otp):
-    url = "https://2factor.in/API/V1/%s/SMS/%s/%s/SMS+OTP" % (
+    url = "https://2factor.in/API/V1/%s/SMS/%s/%s/Keypoints" % (
         constants.two_factor_key, phone_number, otp)
     r = requests.get(url=url)
     return r.json()
