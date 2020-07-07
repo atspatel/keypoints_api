@@ -18,6 +18,7 @@ from django.urls import path, include, re_path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    re_path('admin_ops/', include('admin_ops.urls')),
     re_path('accounts/', include('accounts.urls')),
     re_path('firebase_ops/', include('firebase_ops.urls')),
     re_path('tags_ops/', include('tags_models.urls')),

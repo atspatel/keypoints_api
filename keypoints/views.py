@@ -18,7 +18,7 @@ from tags_models.serializers import LanguageTagSerializer
 from tags_models.serializers import TopicSerializer, CategorySerializer
 
 from tags_models.views import add_languages, add_categories, add_hashtags, add_topics
-from utils.video_utils import create_video_obj_from_file, upload_file, BASE_DIR
+from utils.video_utils import create_video_obj_from_file, create_thumbnail_local_video, upload_file, BASE_DIR
 from utils.image_upload import upload_image
 
 import json
@@ -47,8 +47,10 @@ def post_from_video_obj(video_obj, request):
                         creator=creator_obj,
                         title=title,
                         external_urls=ext_url)
-    post_obj, _= add_languages(languages.values(), post_obj)
-    post_obj, _= add_categories(categories.values(), post_obj)
+    lang_list = languages if isinstance(languages, list) else languages.values()
+    cat_list = categories if isinstance(categories, list) else categories.values()
+    post_obj, _= add_languages(lang_list, post_obj)
+    post_obj, _= add_categories(cat_list, post_obj)
     post_obj.save()
 
     num_of_posts = max(creator_obj.num_of_posts, 0)
@@ -106,6 +108,8 @@ class VideoUploadView(APIView):
 
         def do_after(filepath, video_hash, request):
             thumbnail_image = request.data.get('thumbnail_image', None)
+            if thumbnail_image == None:
+                thumbnail_image = create_thumbnail_local_video(filepath)
             video_obj = create_video_obj_from_file(filepath, video_hash, thumbnail_image, user=None)
             post_obj = post_from_video_obj(video_obj, request)
             os.remove(filepath)

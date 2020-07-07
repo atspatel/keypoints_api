@@ -10,9 +10,15 @@ from urllib.parse import parse_qs
 
 
 class UserMiniSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField(read_only=True)
     profile_pic = serializers.SerializerMethodField(read_only=True)
     follow_status = serializers.SerializerMethodField(read_only=True)
     followers = serializers.SerializerMethodField(read_only=True)
+
+    def get_username(self, obj):
+        if hasattr(obj, 'creator'):
+            return obj.creator.username
+        return None
 
     def get_profile_pic(self, obj):
         if obj.profile_pic:
@@ -40,21 +46,21 @@ class UserMiniSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'name', 'first_name',  'last_name',
+        fields = ('id', 'name', 'first_name',  'last_name', 'username',
                   'profile_pic', 'follow_status', 'followers')
 
 
 class UserSerializer(UserMiniSerializer):
-    username = serializers.SerializerMethodField(read_only=True)
+    # username = serializers.SerializerMethodField(read_only=True)
     bio = serializers.SerializerMethodField(read_only=True)
 
     categories_data = serializers.SerializerMethodField(read_only=True)
     languages_data = serializers.SerializerMethodField(read_only=True)
 
-    def get_username(self, obj):
-        if hasattr(obj, 'creator'):
-            return obj.creator.username
-        return None
+    # def get_username(self, obj):
+    #     if hasattr(obj, 'creator'):
+    #         return obj.creator.username
+    #     return None
 
     def get_bio(self, obj):
         if hasattr(obj, 'creator'):

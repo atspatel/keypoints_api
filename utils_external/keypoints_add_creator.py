@@ -39,7 +39,7 @@ for row in df.itertuples():
                                                 })
     creator_obj, _ = Creator.objects.update_or_create(
         channel_link=channel_link, defaults={'user': user_obj,
-                                             'username': user_name,
+                                             'username': user_name.replace(' ', ''),
                                              'is_active': True})
 
     categories = [] if pd.isnull(categories) else categories.split(', ')
