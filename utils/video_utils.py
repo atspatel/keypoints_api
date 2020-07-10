@@ -33,7 +33,7 @@ def compress_video(finput):
     if not os.path.isfile(f_compressed):
         # ff = FFmpeg(inputs={finput: None}, outputs={
         #             f_compressed: '-vcodec libx265 -crf 28'})
-        ff = FFmpeg(inputs={finput: "-y -to 90"}, outputs={
+        ff = FFmpeg(inputs={finput: "-y -t 90"}, outputs={
             f_compressed: '-vcodec libx264 -vf scale=w=720:h=800:force_original_aspect_ratio=decrease'})
         (stdout, stderr) = ff.run()
         return f_original, f_compressed

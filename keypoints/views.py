@@ -136,17 +136,17 @@ class VideoPostView(APIView):
                     obj=KeypointsCategoryTag.objects.filter(
                         id = qid).first()
                     queryset=VideoPost.objects.filter(
-                        categories = obj) if obj else None
+                        categories = obj) if obj else VideoPost.objects.none()
                 elif qcat == 'topic':
                     obj=KeypointsTopicTag.objects.filter(
                         id = qid).first()
                     queryset=VideoPost.objects.filter(
-                        topics = obj) if obj else None
+                        topics = obj) if obj else VideoPost.objects.none()
                 elif qcat == 'hashtag':
                     obj=KeywordsTag.objects.filter(
                         id = qid).first()
                     queryset=VideoPost.objects.filter(
-                        hashtags = obj) if obj else None
+                        hashtags = obj) if obj else VideoPost.objects.none()
                 elif qcat == 'user_post':
                     user_obj=User.objects.filter(
                         id = qid).first()
