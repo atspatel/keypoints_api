@@ -84,6 +84,7 @@ class AdminCreatorView(APIView):
         creator_obj, _ = Creator.objects.update_or_create(
             channel_link=channel_url, defaults={'user': user_obj,
                                                 'username': username.replace(' ', ''),
+                                                'bio': about,
                                                 'is_active': True})
 
         for category in categories:
