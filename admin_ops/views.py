@@ -46,15 +46,14 @@ class AdminCreatorView(APIView):
     def post(self, request):
         first_name = request.data.get('first_name', None)
         last_name = request.data.get('last_name', None)
-        print(last_name, '-----------')
         username = request.data.get('username', None)
         profile_pic = request.data.get('profile_pic', None)
         channel_url = request.data.get('channel_url', None)
         about = request.data.get('about', None)
         languages = json.loads(request.data.get(
-            'language', json.dumps([])))
+            'languages', json.dumps([])))
         categories = json.loads(request.data.get(
-            'category', json.dumps([])))
+            'categories', json.dumps([])))
 
         if channel_url:
             creator_obj = Creator.objects.filter(
