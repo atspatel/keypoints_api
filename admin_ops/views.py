@@ -8,6 +8,7 @@ from rest_framework import status
 from accounts.models import User, UserImagesUrl
 from keypoints_account.models import Creator
 from keypoints_account.serializers import UserMiniSerializer
+from tags_models.models import KeypointsCategoryTag, LanguageTag
 
 from keypoints.views import VideoUploadView
 
@@ -16,6 +17,7 @@ import os
 import uuid
 import hashlib
 import json
+import re
 
 
 class VideoPost(APIView):
