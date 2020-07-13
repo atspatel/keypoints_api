@@ -38,9 +38,9 @@ def post_from_video_obj(video_obj, request):
     ext_url = ext_url if len(ext_url) > 0 else None
 
     languages = json.loads(request.data.get(
-        'languages', json.dumps({})))
+        'languages', json.dumps([])))
     categories = json.loads(request.data.get(
-        'categories', json.dumps({})))
+        'categories', json.dumps([])))
     
     post_obj = VideoPost.objects.create(
                         video=video_obj, 
@@ -410,17 +410,15 @@ class HashtagView(APIView):
 class OptionsView(APIView):
     def get(self, request):
         languages = LanguageTag.objects.all()
-        languages_options = [{"id": lang.id, "tag": lang.tag}
-                             for lang in languages]
-
+        languages_options = LanguageTagSerializer(languages, many=True).data
+        
         categories = KeypointsCategoryTag.objects.all()
-        categories_options = [{"id": cat.id, "tag": cat.tag}
-                              for cat in categories]
+        categories_options = CategorySerializer(categories, many=True).data
         is_topic = request.GET.get('isTopic', False)
         topics_options = []
         if is_topic:
             topics = KeypointsTopicTag.objects.all()
-            topics_options = [{"id": topic.id, "tag": topic.tag}
+            topics_options = [{"id": topic.id, "tag": topic.tag, "thumbnail": topic.thumbnail_img}
                               for topic in topics]
         return Response({"categories_options": categories_options,
                          "languages_options": languages_options,

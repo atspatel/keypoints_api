@@ -22,6 +22,8 @@ class AbstractTimeClass(models.Model):
 class LanguageTag(AbstractTimeClass):
     key = models.CharField(max_length=200, unique=True)
     tag = models.TextField()
+    thumbnail_img = models.URLField(max_length=500, validators=[
+        url_validator], null=True, blank=True)
 
     def __str__(self):
         return "%s--%s" % (self.id, self.tag)

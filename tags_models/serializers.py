@@ -16,10 +16,10 @@ class KeywordsTagSerializer(serializers.ModelSerializer):
 class LanguageTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = LanguageTag
-        fields = ('id', 'tag')
+        fields = ('id', 'tag', 'thumbnail_img')
 
     def to_representation(self, value):
-        return {value.id: value.tag}
+        return {"id": value.id, "tag": value.tag, "thumbnail": value.thumbnail_img}
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -28,7 +28,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ('id', 'tag', 'thumbnail_img')
 
     def to_representation(self, value):
-        return {"id": value.id, "name": value.tag, "thumbnail": value.thumbnail_img}
+        return {"id": value.id, "tag": value.tag, "thumbnail": value.thumbnail_img}
 
 
 class TopicSerializer(serializers.ModelSerializer):

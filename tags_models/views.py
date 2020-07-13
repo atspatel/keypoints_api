@@ -69,18 +69,3 @@ def add_hashtags(hashtags, post_obj, buffer_obj=None):
             if buffer_obj:
                 buffer_obj.hashtags.add(obj)
     return post_obj, buffer_obj
-
-
-class LanguageView(APIView):
-    def get(self, request, suggestion_text=None):
-        if(suggestion_text):
-            queryset = LanguageTag.objects.filter(tag__iregex=r"{0}".format(suggestion_text)
-                                                  ).order_by('-creation_date')
-
-        else:
-            queryset = LanguageTag.objects.all().order_by('-creation_date')
-        language_tag = LanguageTagSerializer(queryset, many=True).data
-        return Response({"data": language_tag, "status": True})
-
-    def post(self, request):
-        pass

@@ -101,16 +101,16 @@ class CreatorView(APIView):
             about = request.data.get('about', '')
 
             languages = json.loads(request.data.get(
-                'languages', json.dumps({})))
+                'languages', json.dumps([])))
             categories = json.loads(request.data.get(
-                'categories', json.dumps({})))
+                'categories', json.dumps([])))
 
             creator_obj, _ = Creator.objects.update_or_create(
                 user=user, defaults={"username": username, 'bio': about})
             creator_obj, _ = add_languages(
-                languages.values(), creator_obj, None)
+                languages, creator_obj, None)
             creator_obj, _ = add_categories(
-                categories.values(), creator_obj, None)
+                categories, creator_obj, None)
 
             creator_obj.save()
             return Response({"status": True, "id": creator_obj.id, "user_name": user.name})
@@ -165,7 +165,6 @@ class FollowView(APIView):
             category = request.data.get('category', None)
             qid = request.data.get('qid', None)
             action = request.data.get('action', None)
-            print(category, qid, action)
             if category == "user":
                 user_obj = User.objects.filter(
                     id=qid).first() if qid else None
@@ -211,22 +210,29 @@ class KeyPointsPreferenceView(APIView):
         prefrence_obj = KeyPointsUserPreference.objects.filter(
             ann_user=ann_obj).first()
 
-        categories_selected = prefrence_obj.categories if prefrence_obj else KeypointsCategoryTag.objects.none()
-        languages_selected = prefrence_obj.languages if prefrence_obj else LanguageTag.objects.none()
+        categories_selected = prefrence_obj.categories.values_list(
+            'id', flat=True) if prefrence_obj else []
+        languages_selected = prefrence_obj.languages.values_list(
+            'id', flat=True) if prefrence_obj else []
 
-        categories_options = KeypointsCategoryTag.objects.all().exclude(
-            id__in=categories_selected.values('id'))
-        languages_options = LanguageTag.objects.all().exclude(
-            id__in=languages_selected.values('id'))
+        categories_options = KeypointsCategoryTag.objects.all()
+        languages_options = LanguageTag.objects.all()
+
         return Response({
             "status": True,
             "languages": {
-                'options_list': {str(item.id): item.tag for item in languages_options},
-                'selected_list': {str(item.id): item.tag for item in languages_selected.all()},
+                'options_list': [{"id": item.id,
+                                  "tag": item.tag,
+                                  "thumbnail": item.thumbnail_img,
+                                  "selected": True if (item.id in languages_selected) else False}
+                                 for item in languages_options],
             },
             "categories": {
-                'options_list': {str(item.id): item.tag for item in categories_options},
-                'selected_list': {str(item.id): item.tag for item in categories_selected.all()},
+                'options_list': [{"id": item.id,
+                                  "tag": item.tag,
+                                  "thumbnail": item.thumbnail_img,
+                                  "selected": True if (item.id in categories_selected) else False}
+                                 for item in categories_options],
             }
         })
 
@@ -236,9 +242,9 @@ class KeyPointsPreferenceView(APIView):
         user = request.user
 
         categories = json.loads(request.data.get(
-            'categories', json.dumps({}))).keys()
+            'categories', json.dumps([])))
         languages = json.loads(request.data.get(
-            'languages', json.dumps({}))).keys()
+            'languages', json.dumps([])))
 
         categories_obj = KeypointsCategoryTag.objects.filter(id__in=categories)
         languages_obj = LanguageTag.objects.filter(id__in=languages)
