@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'keypoints_account',
     'media_ops',
     'tags_models',
+    'activity_ops',
 
     'corsheaders'
 ]
