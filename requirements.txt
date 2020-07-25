@@ -1,4 +1,5 @@
 asgiref==3.2.10
+autopep8==1.5.3
 beautifulsoup4==4.9.1
 bs4==0.0.1
 cachetools==4.1.1
@@ -6,6 +7,7 @@ certifi==2020.6.20
 chardet==3.0.4
 Django==3.0.7
 django-cors-headers==3.4.0
+django-extensions==3.0.3
 django-filter==2.3.0
 django-storages==1.9.1
 djangorestframework==3.11.0
@@ -29,6 +31,7 @@ protobuf==3.12.2
 psycopg2==2.8.5
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
+pycodestyle==2.6.0
 PySocks==1.7.1
 python-dateutil==2.8.1
 python-ffmpeg-video-streaming==0.1.5
@@ -39,6 +42,8 @@ rsa==4.6
 six==1.15.0
 soupsieve==2.0.1
 sqlparse==0.3.1
+toml==0.10.1
 tweepy==3.8.0
 urllib3==1.25.9
+Werkzeug==1.0.1
 zipp==3.1.0
