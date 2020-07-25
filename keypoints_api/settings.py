@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+import json
+home = os.path.expanduser("~")
+config = json.load(open(os.path.join(home, 'config.json'), 'r'))
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -21,12 +24,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 
 # SECRET_KEY = 'f_g%ca*7u)!pw8se_bxz4_v3_6i1x)77_ri=sjhh)d6lfp+ju('
-SECRET_KEY = os.environ.get(
+SECRET_KEY = config.get(
     'DJANGO_SECRET_KEY', 'f_g%ca*7u)!pw8se_bxz4_v3_6i1x)77_ri=sjhh)d6lfp+ju(')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
+DEBUG = config.get('DJANGO_DEBUG', '') != 'False'
 
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1',
@@ -108,10 +111,10 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ['DB_NAME_DJANGO'],
-        'USER': os.environ['DB_USER_DJANGO'],
-        'PASSWORD': os.environ['DB_PASSWORD_DJANGO'],
-        'HOST': os.environ['DB_HOST'],
+        'NAME': config['DB_NAME_DJANGO'],
+        'USER': config['DB_USER_DJANGO'],
+        'PASSWORD': config['DB_PASSWORD_DJANGO'],
+        'HOST': config['DB_HOST'],
         'PORT': '5432',
     }
 }
