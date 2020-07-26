@@ -14,7 +14,7 @@ import hashlib
 from media_ops.models import VideoUrl
 from utils.image_upload import upload_external_image_content_string
 
-BASE_DIR = "./z_data/videos/"
+BASE_DIR = os.path.join(settings.BASE_DIR, "z_data/videos/")
 if not os.path.isdir(BASE_DIR):
     os.makedirs(BASE_DIR)
 

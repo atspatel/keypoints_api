@@ -13,10 +13,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 import json
-home = os.path.expanduser("~")
-config = json.load(open(os.path.join(home, 'config.json'), 'r'))
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+config = json.load(open(os.path.join(BASE_DIR, 'config.json'), 'r'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -30,6 +29,7 @@ SECRET_KEY = config.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 DEBUG = config.get('DJANGO_DEBUG', '') != 'False'
+print("DEBUG :: ", DEBUG)
 
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1',
@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_extensions',
 
     'rest_framework',
     'rest_framework.authtoken',

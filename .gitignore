@@ -126,7 +126,7 @@ dmypy.json
 *.csv
 
 z_data/*
-
+config.json
 
 cert.crt
 cert.key
