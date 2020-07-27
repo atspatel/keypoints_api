@@ -14,6 +14,9 @@ import json
 import isodate
 
 import ssl
+import logging
+logging.getLogger().setLevel(logging.INFO)
+
 if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -34,10 +37,10 @@ for p_account in all_creator_account:
     crr_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
     if last_croned and (crr_time - last_croned) < datetime.timedelta(minutes=10):
         # will wait for 10 min before next cron
-        print("---- skipping ... ", p_account.rss_feed)
+        logging.info("---- skipping ... ", p_account.rss_feed)
         continue
 
-    print("++++ croning ... ", feed_url)
+    logging.info("++++ croning ... ", feed_url)
     videoFeed = feedparser.parse(feed_url)
 
     prev_skipped_link = 0
@@ -49,12 +52,12 @@ for p_account in all_creator_account:
         link = entry['link'].strip()
         date_str = entry.get('published', None)  # 2020-05-26T07:38:55+00:00
         if VideoBuffer.objects.filter(url=link).first():
-            print("already created videoBuffer with url :: ", link)
+            logging.info("already created videoBuffer with url :: ", link)
             prev_skipped_link += 1
             continue
 
         if VideoPost.objects.filter(url=link).first():
-            print("already created videoPost with url :: ", link)
+            logging.info("already created videoPost with url :: ", link)
             prev_skipped_link += 1
             continue
 
@@ -64,8 +67,8 @@ for p_account in all_creator_account:
         date_published = get_date_from_str(date_str)
         crr_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
         if (crr_time - date_published) > datetime.timedelta(days=days_span):
-            print("skipping .... , Posted before range : %d days" %
-                  (days_span))
+            logging.info("skipping .... , Posted before range : %d days" %
+                         (days_span))
             continue
         video_info = get_website_info(link)
         title = video_info['title']

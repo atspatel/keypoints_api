@@ -29,8 +29,6 @@ SECRET_KEY = config.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 DEBUG = config.get('DJANGO_DEBUG', '') != 'False'
-print("DEBUG :: ", DEBUG)
-
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1',
                  '34.105.38.158', 'apis.keypoints.in']

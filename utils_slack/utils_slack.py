@@ -2,6 +2,8 @@ import requests
 import json
 
 import constants
+import logging
+logging.getLogger().setLevel(logging.INFO)
 
 
 def send_message(channel_name, message='no-data'):
@@ -9,6 +11,6 @@ def send_message(channel_name, message='no-data'):
     data = {'text': message}
     response = requests.post(wekbook_url, data=json.dumps(
         data), headers={'Content-Type': 'application/json'})
-    print('Response: ' + str(response.text))
-    print('Response code: ' + str(response.status_code))
+    logging.info('Response: ' + str(response.text))
+    logging.info('Response code: ' + str(response.status_code))
     return response

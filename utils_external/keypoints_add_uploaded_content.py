@@ -18,6 +18,8 @@ import hashlib
 import re
 
 import string
+import logging
+logging.getLogger().setLevel(logging.INFO)
 
 # video_file_name,video_title,user_id,
 # categories, languages,topics,hashtags,ext_url,
@@ -43,7 +45,7 @@ for row in df.itertuples():
 
     creator_obj = Creator.objects.filter(user__first_name=user_name).first()
     if not creator_obj:
-        print('Creator Not Found ::: ', user_name)
+        logging.info('Creator Not Found ::: ', user_name)
 
     image_url = row.image_url
     image_hash = row.image_hash
@@ -82,7 +84,7 @@ for row in df.itertuples():
         if category_obj:
             post_obj.categories.add(category_obj)
         else:
-            print("Category not found :: ", category)
+            logging.info("Category not found :: ", category)
 
     languages = [] if pd.isnull(languages) else languages.split(', ')
     for language in languages:
@@ -91,7 +93,7 @@ for row in df.itertuples():
         if language_obj:
             post_obj.languages.add(language_obj)
         else:
-            print("language not found :: ", language)
+            logging.info("language not found :: ", language)
 
     topics = [] if pd.isnull(topics) else topics.split(', ')
     for topic in topics:

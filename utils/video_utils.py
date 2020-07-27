@@ -14,6 +14,9 @@ import hashlib
 from media_ops.models import VideoUrl
 from utils.image_upload import upload_external_image_content_string
 
+import logging
+logging.getLogger().setLevel(logging.INFO)
+
 BASE_DIR = os.path.join(settings.BASE_DIR, "z_data/videos/")
 if not os.path.isdir(BASE_DIR):
     os.makedirs(BASE_DIR)
@@ -55,14 +58,14 @@ def convert_to_hls_video(finput):
 
 def compress_and_hls_video(finput):
     f_original, f_compressed = compress_video(finput)
-    print('-- here --', f_original, f_compressed)
+    logging.info('-- here --', f_original, f_compressed)
     # f_original = finput
     # f_compressed = finput
     return f_original, f_compressed, convert_to_hls_video(f_compressed)
 
 
 def upload_file(file_path, name, path="videos"):
-    print('uploading........', file_path)
+    logging.info('uploading........', file_path)
     file_path = default_storage.save(
         "%s/%s" % (path, name), File(open(file_path, 'rb')))
     file_url = urljoin(settings.GS_STATIC_URL, file_path)
@@ -117,7 +120,7 @@ def create_thumbnail_local_video(filePath, user=None):
     content_string = open(thumbnail_path, 'rb').read()
     image_obj = upload_external_image_content_string(
         content_string, thumbnail_name, user=user)
-    print(image_obj)
+    logging.info(image_obj)
     if os.path.isfile(thumbnail_path):
         os.remove(thumbnail_path)
     return image_obj.thumbnail_img

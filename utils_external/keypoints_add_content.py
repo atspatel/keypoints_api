@@ -17,6 +17,8 @@ import hashlib
 import re
 
 import string
+import logging
+logging.getLogger().setLevel(logging.INFO)
 
 exclude_keys = ["highlites", "mondaymotivation", "thursdayvibes", "tuesdaythoughts",
                 "thursdaymorning", "sundaythoughts", "tuesdaymotivation", "wednesdaywisdom"]
@@ -43,7 +45,7 @@ for row in df.itertuples():
 
     creator_obj = Creator.objects.filter(user__first_name=user_name).first()
     if not creator_obj:
-        print('Creator Not Found ::: ', user_name)
+        logging.info('Creator Not Found ::: ', user_name)
     video_obj = VideoUrl.objects.filter(video_hash=video_hash).first()
     if not video_obj:
         video_obj = create_video_obj_from_file(
@@ -63,7 +65,7 @@ for row in df.itertuples():
         if category_obj:
             post_obj.categories.add(category_obj)
         else:
-            print("Category not found :: ", category)
+            logging.info("Category not found :: ", category)
 
     languages = [] if pd.isnull(languages) else languages.split(', ')
     for language in languages:
@@ -72,7 +74,7 @@ for row in df.itertuples():
         if language_obj:
             post_obj.languages.add(language_obj)
         else:
-            print("language not found :: ", language)
+            logging.info("language not found :: ", language)
 
     topics = [] if pd.isnull(topics) else topics.split(', ')
     for topic in topics:

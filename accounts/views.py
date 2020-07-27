@@ -15,6 +15,8 @@ from datetime import datetime
 import requests
 import constants
 
+import logging
+
 MAX_OTP_ATTEMPT = 10
 
 # TEST_USER_BLOCK
@@ -184,7 +186,7 @@ class LogOut(APIView):
 
     def get(self, request):
         user = request.user
-        print("Logged Out :: ", user)
+        logging.info("Logged Out :: ", user)
         if user.is_authenticated:
             user.auth_token.delete()
             ann_obj = get_ann_token(None)

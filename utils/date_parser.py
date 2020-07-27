@@ -1,12 +1,13 @@
 import datetime
 import pytz
-date_pattern = ['%Y-%m-%d', 
-                    '%a, %d %b %Y %H:%M:%S %z', 
-                    '%a, %d %b %Y %H:%M:%S %Z', 
-                    '%Y-%m-%dT%H:%M:%S%z',
-                    '%a,%d %b %y %H:%M:%S %z',
-                    '%a, %d %b %y %H:%M:%S %z',
-                    '%a %b %d %H:%M:%S %z %Y']
+date_pattern = ['%Y-%m-%d',
+                '%a, %d %b %Y %H:%M:%S %z',
+                '%a, %d %b %Y %H:%M:%S %Z',
+                '%Y-%m-%dT%H:%M:%S%z',
+                '%a,%d %b %y %H:%M:%S %z',
+                '%a, %d %b %y %H:%M:%S %z',
+                '%a %b %d %H:%M:%S %z %Y']
+
 
 def get_date_from_str(datestr):
     date = None
@@ -28,6 +29,6 @@ def get_date_from_str(datestr):
         date = date.replace(tzinfo=pytz.timezone(tz))
     return date
 
-if __name__=="__main__":
-    date_str = "Thu Feb 06 16:02:31 +0000 2020"
-    print(get_date_from_str(date_str))
+# if __name__=="__main__":
+#     date_str = "Thu Feb 06 16:02:31 +0000 2020"
+#     logging.info(get_date_from_str(date_str))

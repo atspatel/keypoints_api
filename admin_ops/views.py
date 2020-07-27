@@ -19,6 +19,9 @@ import hashlib
 import json
 import re
 
+import logging
+logging.getLogger().setLevel(logging.INFO)
+
 
 class VideoPost(APIView):
     permission_classes = [IsAdminUser]
@@ -94,7 +97,7 @@ class AdminCreatorView(APIView):
             if category_obj:
                 creator_obj.categories.add(category_obj)
             else:
-                print("Category not found :: ", category)
+                logging.info("Category not found :: ", category)
 
         for lang in languages:
             key = re.sub("[^a-z]+", "", lang.lower())
@@ -102,7 +105,7 @@ class AdminCreatorView(APIView):
             if language_obj:
                 creator_obj.languages.add(language_obj)
             else:
-                print("language not found :: ", lang)
+                logging.info("language not found :: ", lang)
 
         creator_obj.save()
         return Response({"status": True,

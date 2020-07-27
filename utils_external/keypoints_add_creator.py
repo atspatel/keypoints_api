@@ -11,6 +11,8 @@ import hashlib
 import re
 
 import string
+import logging
+logging.getLogger().setLevel(logging.INFO)
 
 csv_file = "./z_data/user_seed_content.csv"
 df = pd.read_csv(csv_file)
@@ -49,7 +51,7 @@ for row in df.itertuples():
         if category_obj:
             creator_obj.categories.add(category_obj)
         else:
-            print("Category not found :: ", category)
+            logging.info("Category not found :: ", category)
 
     language = [] if pd.isnull(language) else language.split(', ')
     for lang in language:
@@ -58,6 +60,6 @@ for row in df.itertuples():
         if language_obj:
             creator_obj.languages.add(language_obj)
         else:
-            print("language not found :: ", lang)
+            logging.info("language not found :: ", lang)
 
     creator_obj.save()

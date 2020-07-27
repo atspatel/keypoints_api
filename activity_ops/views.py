@@ -6,6 +6,8 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 
 from .models import ActivityOps
+import logging
+logging.getLogger().setLevel(logging.INFO)
 
 
 class ActivityView(APIView):
@@ -23,5 +25,5 @@ class ActivityView(APIView):
                 activity=activity, video_id=video_id, button_id=button_id)
 
         activity_id = activity_obj.id if activity_obj else None
-        print('Video_activity :: ', activity_id)
+        logging.info('Video_activity :: ', activity_id)
         return Response({'status': True, "activity_id": activity_id})

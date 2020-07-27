@@ -25,6 +25,8 @@ import json
 import os
 import shutil
 import hashlib
+import logging
+logging.getLogger().setLevel(logging.INFO)
 
 
 def update_creator_follow_count(user_obj):
@@ -255,7 +257,7 @@ class KeyPointsPreferenceView(APIView):
         prefrence_obj.categories.set(categories_obj)
         prefrence_obj.languages.set(languages_obj)
 
-        print(prefrence_obj.id)
+        logging.info(prefrence_obj.id)
         return Response({
             'status': True,
             'preference_id': prefrence_obj.id
@@ -266,6 +268,7 @@ class UserNameCheck(APIView):
     def get(self, request, username=None):
         user = request.user
         if username and len(username) > 3:
+            logging.info(username)
             creator_obj = Creator.objects.filter(
                 username__iexact=username).first()
             if creator_obj and creator_obj.user != user:
