@@ -118,6 +118,8 @@ def create_thumbnail_local_video(filePath, user=None):
     image_obj = upload_external_image_content_string(
         content_string, thumbnail_name, user=user)
     print(image_obj)
+    if os.path.isfile(thumbnail_path):
+        os.remove(thumbnail_path)
     return image_obj.thumbnail_img
 
 

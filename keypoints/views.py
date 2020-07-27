@@ -20,12 +20,15 @@ from tags_models.serializers import TopicSerializer, CategorySerializer
 from tags_models.views import add_languages, add_categories, add_hashtags, add_topics
 from utils.video_utils import create_video_obj_from_file, create_thumbnail_local_video, upload_file, BASE_DIR
 from utils.image_upload import upload_image
+from utils_slack.utils_slack import send_message
 
 import json
 import os
 
 import hashlib
 import uuid
+
+import constants
 
 def post_from_video_obj(video_obj, request):
     creator_obj = Creator.objects.filter(user=request.user).first()
@@ -57,6 +60,8 @@ def post_from_video_obj(video_obj, request):
     creator_obj.num_of_posts = num_of_posts + 1
     creator_obj.save()
     print(post_obj.id, 'created ----------')
+    message = "%s ::: %s ::: %s ::: %s"%(constants.MODE, post_obj.id, post_obj.creator, post_obj.title)
+    send_message(constants.ALERT_UPLOAD_VIDEO, message)
     return post_obj
 
 
