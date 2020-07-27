@@ -16,6 +16,7 @@ import requests
 import constants
 
 import logging
+logging.getLogger().setLevel(logging.INFO)
 
 MAX_OTP_ATTEMPT = 10
 
