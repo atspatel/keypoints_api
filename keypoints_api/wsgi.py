@@ -17,7 +17,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'keypoints_api.settings') ## lin
 ## turn off autosave before savingg this
 
 from django.conf import settings
-config = json.load(open(os.path.join(BASE_DIR, 'config.json'), 'r'))
+config = json.load(open(os.path.join(settings.BASE_DIR, 'config.json'), 'r'))
 os.environ.setdefault('GOOGLE_APPLICATION_CREDENTIALS',
                       config.get('GOOGLE_APPLICATION_CREDENTIALS', None))
 
