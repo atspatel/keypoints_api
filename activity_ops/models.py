@@ -18,3 +18,4 @@ class ActivityOps(AbstractTimeClass):
     activity = models.CharField(max_length=255)
     video_id = models.CharField(max_length=255, null=True, blank=True)
     button_id = models.CharField(max_length=255, null=True, blank=True)
+    session_id = models.UUIDField(null=True, blank=True, editable=False)

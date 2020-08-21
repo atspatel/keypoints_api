@@ -45,7 +45,7 @@ for row in df.itertuples():
 
     creator_obj = Creator.objects.filter(user__first_name=user_name).first()
     if not creator_obj:
-        logging.info('Creator Not Found ::: ', user_name)
+        logging.info('Creator Not Found ::: %s' % user_name)
     video_obj = VideoUrl.objects.filter(video_hash=video_hash).first()
     if not video_obj:
         video_obj = create_video_obj_from_file(
@@ -65,7 +65,7 @@ for row in df.itertuples():
         if category_obj:
             post_obj.categories.add(category_obj)
         else:
-            logging.info("Category not found :: ", category)
+            logging.info("Category not found :: %s" % category)
 
     languages = [] if pd.isnull(languages) else languages.split(', ')
     for language in languages:
@@ -74,7 +74,7 @@ for row in df.itertuples():
         if language_obj:
             post_obj.languages.add(language_obj)
         else:
-            logging.info("language not found :: ", language)
+            logging.info("language not found :: %s" % language)
 
     topics = [] if pd.isnull(topics) else topics.split(', ')
     for topic in topics:

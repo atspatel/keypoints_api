@@ -58,14 +58,13 @@ def convert_to_hls_video(finput):
 
 def compress_and_hls_video(finput):
     f_original, f_compressed = compress_video(finput)
-    logging.info('-- here --', f_original, f_compressed)
     # f_original = finput
     # f_compressed = finput
     return f_original, f_compressed, convert_to_hls_video(f_compressed)
 
 
 def upload_file(file_path, name, path="videos"):
-    logging.info('uploading........', file_path)
+    logging.info('uploading........ %s' % file_path)
     file_path = default_storage.save(
         "%s/%s" % (path, name), File(open(file_path, 'rb')))
     file_url = urljoin(settings.GS_STATIC_URL, file_path)

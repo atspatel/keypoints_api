@@ -61,7 +61,6 @@ def post_from_video_obj(video_obj, request):
     num_of_posts = max(creator_obj.num_of_posts, 0)
     creator_obj.num_of_posts = num_of_posts + 1
     creator_obj.save()
-    logging.info(post_obj.id, 'created ----------')
     message = "%s ::: %s ::: %s ::: %s"%(constants.MODE, post_obj.id, post_obj.creator, post_obj.title)
     send_message(constants.ALERT_UPLOAD_VIDEO, message)
     return post_obj
@@ -200,17 +199,17 @@ class VideoPostView(APIView):
             hashtags=json.loads(request.data.get(
                 'hashtags', json.dumps([])))
 
-            logging.info('languages', languages)
-            logging.info('categories', categories)
-            logging.info('topics', topics)
-            logging.info('hashtags', hashtags)
+            # logging.info('languages', languages)
+            # logging.info('categories', categories)
+            # logging.info('topics', topics)
+            # logging.info('hashtags', hashtags)
 
             post_obj, _=add_languages(languages, post_obj)
             post_obj, _=add_categories(categories, post_obj)
             post_obj, _=add_topics(topics, post_obj)
             post_obj, _=add_hashtags(hashtags, post_obj)
             post_obj.save()
-            logging.info("-----------", post_obj.id)
+            logging.info("----------- %s" % post_obj.id)
             return Response({'id': post_obj.id, "status": True})
         return Response({"status": False})
     
@@ -391,7 +390,6 @@ class TopicView(APIView):
                         creator=creator_obj)
                     topics = KeypointsTopicTag.objects.filter(
                         videopost__in=videos_obj).distinct()
-                    logging.info(topics, '-------')
                 # elif qcat == 'user_post':
                 #     queryset = KeypointsTopicTag.objects.all().order_by(
                 #         '-num_of_posts')

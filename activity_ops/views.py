@@ -18,12 +18,13 @@ class ActivityView(APIView):
         activity = request.data.get('activity', None)
         if activity:
             video_id = request.data.get('video_id', None)
+            session_id = request.data.get('session_id', None)
             button_id = None
             if activity == 'click':
                 button_id = request.data.get('button_id', None)
             activity_obj = ActivityOps.objects.create(
-                activity=activity, video_id=video_id, button_id=button_id)
+                activity=activity, video_id=video_id, button_id=button_id, session_id=session_id)
 
         activity_id = activity_obj.id if activity_obj else None
-        logging.info('Video_activity :: ', activity_id)
+        logging.info('Video_activity :: %s' % activity_id)
         return Response({'status': True, "activity_id": activity_id})

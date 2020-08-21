@@ -37,10 +37,10 @@ for p_account in all_creator_account:
     crr_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
     if last_croned and (crr_time - last_croned) < datetime.timedelta(minutes=10):
         # will wait for 10 min before next cron
-        logging.info("---- skipping ... ", p_account.rss_feed)
+        logging.info("---- skipping ... %s" % p_account.rss_feed)
         continue
 
-    logging.info("++++ croning ... ", feed_url)
+    logging.info("++++ croning ... %s" % feed_url)
     videoFeed = feedparser.parse(feed_url)
 
     prev_skipped_link = 0
@@ -52,12 +52,12 @@ for p_account in all_creator_account:
         link = entry['link'].strip()
         date_str = entry.get('published', None)  # 2020-05-26T07:38:55+00:00
         if VideoBuffer.objects.filter(url=link).first():
-            logging.info("already created videoBuffer with url :: ", link)
+            logging.info("already created videoBuffer with url :: %s" % link)
             prev_skipped_link += 1
             continue
 
         if VideoPost.objects.filter(url=link).first():
-            logging.info("already created videoPost with url :: ", link)
+            logging.info("already created videoPost with url :: %s" % link)
             prev_skipped_link += 1
             continue
 

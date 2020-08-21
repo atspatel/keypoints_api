@@ -51,7 +51,7 @@ for row in df.itertuples():
         if category_obj:
             creator_obj.categories.add(category_obj)
         else:
-            logging.info("Category not found :: ", category)
+            logging.info("Category not found :: %s" % category)
 
     language = [] if pd.isnull(language) else language.split(', ')
     for lang in language:
@@ -60,6 +60,6 @@ for row in df.itertuples():
         if language_obj:
             creator_obj.languages.add(language_obj)
         else:
-            logging.info("language not found :: ", lang)
+            logging.info("language not found :: %s" % lang)
 
     creator_obj.save()
