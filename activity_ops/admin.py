@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ActivityOps
+from .models import ActivityOps, SessionDuration
 
 
 class ActivityOpsAdmin(admin.ModelAdmin):
@@ -8,3 +8,10 @@ class ActivityOpsAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ActivityOps, ActivityOpsAdmin)
+
+
+class SessionDurationAdmin(admin.ModelAdmin):
+    list_display = ['session_id', 'video_id', 'duration', 'creation_date']
+
+
+admin.site.register(SessionDuration, SessionDurationAdmin)

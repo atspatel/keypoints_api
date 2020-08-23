@@ -19,3 +19,10 @@ class ActivityOps(AbstractTimeClass):
     video_id = models.CharField(max_length=255, null=True, blank=True)
     button_id = models.CharField(max_length=255, null=True, blank=True)
     session_id = models.UUIDField(null=True, blank=True, editable=False)
+
+
+class SessionDuration(AbstractTimeClass):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    session_id = models.UUIDField(unique=True)
+    video_id = models.CharField(max_length=255, null=True, blank=True)
+    duration = models.FloatField(default=0.0)
