@@ -6,69 +6,70 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 
-tz = pytz.timezone("Asia/Kolkata")
-start_date = tz.localize(datetime(2020, 8, 22, 12, 00))
 
-video_ids = ActivityOps.objects.values_list('video_id', flat=True).distinct()
+def get_data():
+    tz = pytz.timezone("Asia/Kolkata")
+    start_date = tz.localize(datetime(2020, 8, 22, 12, 00))
 
-output = []
-video_cols = ['video_id', 'button_id', 'load', 'click/play',
-              '#sessions', '#nonzero', 'min', '10', '20', '50', '80', '90', 'max',
-              'average', 'average_nz', 'average_10_90', 'array_20_80']
+    video_ids = ActivityOps.objects.values_list(
+        'video_id', flat=True).distinct()
 
-for video_id in video_ids:
-    buttons_out = []
-    video_out = {}
+    output = []
+    video_cols = ['video_id', 'button_id', 'load', 'click/play',
+                  '#sessions', '#nonzero', 'min', '10', '20', '50', '80', '90', 'max',
+                  'average', 'average_nz', 'average_10_90', 'array_20_80']
 
-    video_load = ActivityOps.objects.filter(
-        video_id=video_id, activity="load", creation_date__gte=start_date).count()
-    video_play = ActivityOps.objects.filter(
-        video_id=video_id, activity="play", creation_date__gte=start_date).count()
+    for video_id in video_ids:
+        buttons_out = []
+        video_out = {}
 
-    video_out = {'video_id': video_id,
-                 'load': video_load, 'click/play': video_play}
-    button_list = ActivityOps.objects.filter(
-        video_id=video_id, activity="click").values_list('button_id', flat=True).distinct()
-    for button in button_list:
-        button_count = ActivityOps.objects.filter(
-            video_id=video_id, activity="click", button_id=button, creation_date__gte=start_date).count()
-        buttons_out.append(
-            {'video_id': video_id, 'button_id': button, 'click/play': button_count})
-    video_sessions = SessionDuration.objects.filter(
-        video_id=video_id).values_list("duration", flat=True)
-    np_sessions = np.sort(np.array(video_sessions))
-    n = len(np_sessions)
-    if n > 0:
-        nz_count = np.count_nonzero(np_sessions)
-        array_10_90 = np_sessions[int(0.1*n): int(0.9*n)]
-        array_20_80 = np_sessions[int(0.2*n): int(0.8*n)]
+        video_load = ActivityOps.objects.filter(
+            video_id=video_id, activity="load", creation_date__gte=start_date).count()
+        video_play = ActivityOps.objects.filter(
+            video_id=video_id, activity="play", creation_date__gte=start_date).count()
 
-        video_out["#sessions"] = n
-        video_out['#nonzero'] = nz_count
-        video_out['min'] = np.round(np.min(np_sessions), 2)
-        video_out["10"] = np.round(np.percentile(np_sessions, 10), 2)
-        video_out["20"] = np.round(np.percentile(np_sessions, 20), 2)
-        video_out["50"] = np.round(np.percentile(np_sessions, 50), 2)
-        video_out["80"] = np.round(np.percentile(np_sessions, 80), 2)
-        video_out["90"] = np.round(np.percentile(np_sessions, 90), 2)
-        video_out['max'] = np.round(np.max(np_sessions), 2)
-        video_out["average"] = np.round(np.average(np_sessions), 2)
-        video_out["average_nz"] = np.round(np.sum(
-            np_sessions)/nz_count if nz_count else 0, 2)
-        video_out["average_10_90"] = np.round(np.average(array_10_90), 2)
-        video_out["array_20_80"] = np.round(np.average(array_20_80), 2)
+        video_out = {'video_id': video_id,
+                     'load': video_load, 'click/play': video_play}
+        button_list = ActivityOps.objects.filter(
+            video_id=video_id, activity="click").values_list('button_id', flat=True).distinct()
+        for button in button_list:
+            button_count = ActivityOps.objects.filter(
+                video_id=video_id, activity="click", button_id=button, creation_date__gte=start_date).count()
+            buttons_out.append(
+                {'video_id': video_id, 'button_id': button, 'click/play': button_count})
+        video_sessions = SessionDuration.objects.filter(
+            video_id=video_id).values_list("duration", flat=True)
+        np_sessions = np.sort(np.array(video_sessions))
+        n = len(np_sessions)
+        if n > 0:
+            nz_count = np.count_nonzero(np_sessions)
+            array_10_90 = np_sessions[int(0.1*n): int(0.9*n)]
+            array_20_80 = np_sessions[int(0.2*n): int(0.8*n)]
 
-    # video_out["buttons"] = buttons_out
-    out = []
-    for k in video_cols:
-        out.append(video_out.get(k, ''))
-    output.append(out)
+            video_out["#sessions"] = n
+            video_out['#nonzero'] = nz_count
+            video_out['min'] = np.round(np.min(np_sessions), 2)
+            video_out["10"] = np.round(np.percentile(np_sessions, 10), 2)
+            video_out["20"] = np.round(np.percentile(np_sessions, 20), 2)
+            video_out["50"] = np.round(np.percentile(np_sessions, 50), 2)
+            video_out["80"] = np.round(np.percentile(np_sessions, 80), 2)
+            video_out["90"] = np.round(np.percentile(np_sessions, 90), 2)
+            video_out['max'] = np.round(np.max(np_sessions), 2)
+            video_out["average"] = np.round(np.average(np_sessions), 2)
+            video_out["average_nz"] = np.round(np.sum(
+                np_sessions)/nz_count if nz_count else 0, 2)
+            video_out["average_10_90"] = np.round(np.average(array_10_90), 2)
+            video_out["array_20_80"] = np.round(np.average(array_20_80), 2)
 
-    for button in buttons_out:
+        # video_out["buttons"] = buttons_out
         out = []
         for k in video_cols:
-            out.append(button.get(k, ''))
+            out.append(video_out.get(k, ''))
         output.append(out)
 
-pd.DataFrame(output).to_csv("./z_data/analytics_%s.csv" % (datetime.now()),
-                            header=video_cols, index=None)
+        for button in buttons_out:
+            out = []
+            for k in video_cols:
+                out.append(button.get(k, ''))
+            output.append(out)
+    return output

@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render
 
 from rest_framework.views import APIView
@@ -6,6 +7,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 
 from .models import ActivityOps, SessionDuration
+from .video_analytics import get_data
 import logging
 logging.getLogger().setLevel(logging.INFO)
 
@@ -32,7 +34,8 @@ class ActivityView(APIView):
 
 class VideoPlaylistTimeView(APIView):
     def get(self, request):
-        return Response({'status': True})
+        output = get_data()
+        return Response({'status': True, "data": json.dumps(output)})
 
     def post(self, request):
         session_id = request.data.get('session_id', None)
@@ -42,4 +45,4 @@ class VideoPlaylistTimeView(APIView):
             print(session_id, video_id, duration)
             dur_obj, _ = SessionDuration.objects.update_or_create(
                 session_id=session_id, defaults={"video_id": video_id, "duration": float(duration)})
-        return Response({'status': True})
+        return Response({'status': True, "id": dur_obj.id})
