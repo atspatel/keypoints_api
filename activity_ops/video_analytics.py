@@ -7,6 +7,10 @@ import pandas as pd
 from datetime import datetime
 
 
+video_exclude = ['oximeter', 'realme_demo',
+                 'dhoni_tribute_001', 'hotstart', 'shayari_video_001']
+
+
 def get_data():
     tz = pytz.timezone("Asia/Kolkata")
     start_date = tz.localize(datetime(2020, 8, 22, 12, 00))
@@ -20,7 +24,7 @@ def get_data():
                   'average', 'average_nz', 'average_10_90', 'array_20_80']
 
     for video_id in video_ids:
-        if video_id in ['oximeter', 'realme_demo', 'dhoni_tribute_001', 'hotstart']:
+        if video_id in video_exclude:
             continue
         buttons_out = []
         video_out = {}
