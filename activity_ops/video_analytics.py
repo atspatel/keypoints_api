@@ -20,6 +20,8 @@ def get_data():
                   'average', 'average_nz', 'average_10_90', 'array_20_80']
 
     for video_id in video_ids:
+        if video_id in ['oximeter', 'realme_demo', 'dhoni_tribute_001', 'hotstart']:
+            continue
         buttons_out = []
         video_out = {}
 
