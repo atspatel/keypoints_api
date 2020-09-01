@@ -50,3 +50,19 @@ class VideoUrl(AbstractTimeClass):
             return self.hls_url
         else:
             return self.url
+
+
+class AudioUrl(AbstractTimeClass):
+    audio_hash = models.CharField(max_length=300, unique=True)
+    url = models.URLField(max_length=300, validators=[
+        url_validator], unique=True)
+    thumbnail_img = models.URLField(max_length=300, validators=[
+        url_validator], null=True, blank=True)
+
+    duration = models.DurationField(null=True)
+    media_type = models.CharField(max_length=100, default='audio/mpeg')
+    source = models.CharField(max_length=50, default="KeyPoints")
+
+    @property
+    def display_url(self):
+        return self.url

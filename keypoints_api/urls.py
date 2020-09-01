@@ -26,4 +26,5 @@ urlpatterns = [
     re_path('keypoints_account/', include('keypoints_account.urls')),
     re_path('activity_ops/', include('activity_ops.urls')),
     re_path('excercise_ops/', include('excercise_ops.urls')),
+    re_path('playlist_ops/', include('playlist_ops.urls')),
 ]

@@ -24,6 +24,7 @@ class LanguageTag(AbstractTimeClass):
     tag = models.TextField()
     thumbnail_img = models.URLField(max_length=500, validators=[
         url_validator], null=True, blank=True)
+    isAppLive = models.BooleanField(default=False)
 
     def __str__(self):
         return "%s--%s" % (self.id, self.tag)

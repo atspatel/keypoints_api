@@ -414,7 +414,7 @@ class HashtagView(APIView):
 
 class OptionsView(APIView):
     def get(self, request):
-        languages = LanguageTag.objects.all()
+        languages = LanguageTag.objects.filter(isAppLive=True)
         languages_options = LanguageTagSerializer(languages, many=True).data
         
         categories = KeypointsCategoryTag.objects.all()
