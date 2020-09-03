@@ -26,3 +26,4 @@ class SessionDuration(AbstractTimeClass):
     session_id = models.UUIDField(unique=True)
     video_id = models.CharField(max_length=255, null=True, blank=True)
     duration = models.FloatField(default=0.0)
+    duration_1 = models.FloatField(default=0.0)
