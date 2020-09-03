@@ -43,7 +43,6 @@ class VideoPlaylistTimeView(APIView):
         duration = request.data.get('duration', None)
         duration_1 = request.data.get('duration_1', None)
         if session_id:
-            print(session_id, video_id, duration)
             dur_obj, _ = SessionDuration.objects.update_or_create(
                 session_id=session_id, defaults={"video_id": video_id,
                                                  "duration": float(duration),
