@@ -5,10 +5,23 @@ import pytz
 import numpy as np
 import pandas as pd
 from datetime import datetime
+import json
 
 
 video_exclude = ['oximeter', 'realme_demo',
                  'dhoni_tribute_001', 'hotstart', 'shayari_video_001']
+
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return super(NpEncoder, self).default(obj)
 
 
 def get_data():
@@ -21,7 +34,7 @@ def get_data():
     output = []
     video_cols = ['video_id', 'button_id', 'load', 'click/play',
                   '#sessions', '#nonzero', 'min', '10', '20', '50', '80', '90', 'max',
-                  'average', 'average_nz', 'average_10_90', 'array_20_80']
+                  'average', 'average_nz', 'average_10_90', 'array_20_80', 'average_1', 'average_nz_1']
 
     for video_id in video_ids:
         if video_id in video_exclude:
@@ -67,6 +80,15 @@ def get_data():
             video_out["average_10_90"] = np.round(np.average(array_10_90), 2)
             video_out["array_20_80"] = np.round(np.average(array_20_80), 2)
 
+        video_sessions = SessionDuration.objects.filter(
+            video_id=video_id).values_list("duration_1", flat=True)
+        np_sessions = np.sort(np.array(video_sessions))
+        n = len(np_sessions)
+        if n > 0:
+            nz_count = np.count_nonzero(np_sessions)
+            video_out["average_1"] = np.round(np.average(np_sessions), 2)
+            video_out["average_nz_1"] = np.round(np.sum(
+                np_sessions)/nz_count if nz_count else 0, 2)
         # video_out["buttons"] = buttons_out
         out = []
         for k in video_cols:
@@ -78,4 +100,4 @@ def get_data():
             for k in video_cols:
                 out.append(button.get(k, ''))
             output.append(out)
-    return output
+    return json.dumps(output, cls=NpEncoder)

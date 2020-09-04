@@ -35,7 +35,7 @@ class ActivityView(APIView):
 class VideoPlaylistTimeView(APIView):
     def get(self, request):
         output = get_data()
-        return Response({'status': True, "data": json.dumps(output)})
+        return Response({'status': True, "data": output})
 
     def post(self, request):
         session_id = request.data.get('session_id', None)
