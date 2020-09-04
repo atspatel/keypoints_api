@@ -77,8 +77,10 @@ def get_data():
             video_out["average"] = np.round(np.average(np_sessions), 2)
             video_out["average_nz"] = np.round(np.sum(
                 np_sessions)/nz_count if nz_count else 0, 2)
-            video_out["average_10_90"] = np.round(np.average(array_10_90), 2)
-            video_out["array_20_80"] = np.round(np.average(array_20_80), 2)
+            video_out["average_10_90"] = np.round(np.average(
+                array_10_90), 2) if np.count_nonzero(array_10_90) else 0
+            video_out["array_20_80"] = np.round(np.average(
+                array_10_90), 2) if np.count_nonzero(array_20_80) else 0
 
         video_sessions = SessionDuration.objects.filter(
             video_id=video_id).values_list("duration_1", flat=True)
