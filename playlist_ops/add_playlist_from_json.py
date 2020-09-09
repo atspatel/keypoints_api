@@ -51,7 +51,7 @@ for f in sorted(os.listdir(json_folder)):
             "isSingleSecondary": isSingleSecondary,
             "created_by": admin_user
         })
-
+        PlaylistMediaMapping.objects.filter(playlist=playlist_obj).delete()
         for index, media in enumerate(primaryList):
             media_obj = get_media_obj(media, created_by=admin_user)
             if media_obj:
