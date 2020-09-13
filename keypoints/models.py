@@ -68,25 +68,6 @@ class VideoPost(AbstractTimeClass):
         return None
 
 
-class VideoBuffer(AbstractTimeClass):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    url = models.URLField(max_length=500, validators=[
-                          url_validator], unique=True)
-    title = models.TextField(null=True)
-    thumbnail_image = models.URLField(max_length=500, validators=[
-        url_validator], null=True)
-    duration = models.DurationField(null=True)
-    creator = models.ForeignKey(
-        Creator, blank=False, null=True, on_delete=models.SET_NULL)
-    categories = models.ManyToManyField(KeypointsCategoryTag, blank=True)
-    languages = models.ManyToManyField(LanguageTag, blank=True)
-    topics = models.ManyToManyField(KeypointsTopicTag, blank=True)
-    hashtags = models.ManyToManyField(KeywordsTag, blank=True)
-
-    checked = models.BooleanField(default=False)
-    deleted = models.BooleanField(default=False)
-
-
 class VideoReShare(AbstractTimeClass):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     video_id = models.ForeignKey(VideoPost, on_delete=models.CASCADE)

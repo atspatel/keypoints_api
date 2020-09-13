@@ -1,43 +1,10 @@
 from rest_framework import serializers
 
-from .models import VideoBuffer, VideoPost, VideoLike
+from .models import VideoPost, VideoLike
 
 from keypoints_account.serializers import UserMiniSerializer
 import urllib.parse as urlparse
 from urllib.parse import parse_qs
-
-
-class VideoBufferSerializer(serializers.ModelSerializer):
-    video_id = serializers.SerializerMethodField(read_only=True)
-    languages_data = serializers.SerializerMethodField(read_only=True)
-    topics_data = serializers.SerializerMethodField(read_only=True)
-    categories_data = serializers.SerializerMethodField(read_only=True)
-    hashtags_data = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = VideoBuffer
-        fields = ('id', 'url', 'video_id', 'title', 'thumbnail_image',
-                  'languages_data', 'topics_data', 'categories_data', 'hashtags_data', 'checked')
-
-    def get_video_id(self, obj):
-        url = obj.url
-        video_ids = parse_qs(urlparse.urlparse(url).query).get('v', [])
-        video_id = None
-        if len(video_ids) > 0:
-            video_id = video_ids[0]
-        return video_id
-
-    def get_languages_data(self, obj):
-        return [item.tag for item in obj.languages.all()]
-
-    def get_topics_data(self, obj):
-        return [item.tag for item in obj.topics.all()]
-
-    def get_categories_data(self, obj):
-        return [item.tag for item in obj.categories.all()]
-
-    def get_hashtags_data(self, obj):
-        return [item.tag for item in obj.hashtags.all()]
 
 
 class VideoPostSerializer(serializers.ModelSerializer):

@@ -1,4 +1,4 @@
-from .views import VideoPostView, VideoBufferView, VideoUploadView
+from .views import VideoPostView, VideoUploadView
 from .views import VideoLikeView, VideoReshareView, ThumbnailView
 from .views import CategoryView, TopicView, HashtagView, OptionsView
 
@@ -7,8 +7,6 @@ from django.conf.urls import url, include
 
 urlpatterns = [
     # get
-    path('videobuffer/',
-         VideoBufferView.as_view(), name="get_buffer"),
     path('video_feed/<post_id>/',
          VideoPostView.as_view(), name="get_video_feed"),
 
@@ -24,10 +22,6 @@ urlpatterns = [
          VideoLikeView.as_view(), name="get_video_feed"),
     path('post_reshare/',
          VideoReshareView.as_view(), name="upload_video_post"),
-
-    # Delele
-    path('videobuffer/<buffer_id>',
-         VideoBufferView.as_view(), name="delete_buffer"),
 
 
     path('category/',

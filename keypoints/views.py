@@ -8,12 +8,12 @@ from django.core.paginator import Paginator, EmptyPage
 
 from accounts.models import User, AnnonymousUserTable
 from keypoints_account.models import Creator, KeywordFollowerTable
-from .models import VideoBuffer, VideoPost, VideoLike
+from .models import VideoPost, VideoLike
 from media_ops.models import VideoUrl
 from tags_models.models import LanguageTag, KeywordsTag
 from tags_models.models import KeypointsTopicTag, KeypointsCategoryTag
 
-from .serializers import VideoBufferSerializer, VideoPostSerializer
+from .serializers import VideoPostSerializer
 from tags_models.serializers import LanguageTagSerializer
 from tags_models.serializers import TopicSerializer, CategorySerializer
 
@@ -227,65 +227,6 @@ class VideoPostView(APIView):
                 return Response({'status': False, 'message': 'You are not allowed to delete'})
         else:
             return Response({'status': False, 'message': 'post_id not given'})
-
-
-class VideoBufferView(APIView):
-    permission_classes = [IsAdminUser]
-
-    def get(self, request):
-        queryset=VideoBuffer.objects.filter(
-            checked = False, deleted = False).order_by("-creation_date")
-        data=VideoBufferSerializer(queryset, many = True).data
-        return Response({"data": data, "status": True})
-
-    def post(self, request):
-        user=request.user
-        buffer_id=request.data.get('id', None)
-        if(buffer_id):
-            buffer_obj=VideoBuffer.objects.filter(id = buffer_id).first()
-
-            post_obj, _=VideoPost.objects.update_or_create(
-                url = buffer_obj.url,
-                defaults = {"title": buffer_obj.title,
-                          "thumbnail_image": buffer_obj.thumbnail_image,
-                          "duration": buffer_obj.duration,
-                          "creator": buffer_obj.creator,
-                          "creation_date": buffer_obj.creation_date})
-
-            languages=json.loads(request.data.get(
-                'languages', json.dumps([])))
-            categories=json.loads(request.data.get(
-                'categories', json.dumps([])))
-            topics=json.loads(request.data.get(
-                'topics', json.dumps([])))
-            hashtags=json.loads(request.data.get(
-                'hashtags', json.dumps([])))
-
-            post_obj, buffer_obj=add_languages(
-                languages, post_obj, buffer_obj)
-            post_obj, buffer_obj=add_categories(
-                categories, post_obj, buffer_obj)
-            post_obj, buffer_obj=add_topics(
-                topics, post_obj, buffer_obj)
-            post_obj, buffer_obj=add_hashtags(
-                hashtags, post_obj, buffer_obj)
-
-            post_obj.save()
-
-            buffer_obj.checked=True
-            buffer_obj.save()
-            return Response({'id': post_obj.id, "status": True})
-        return Response({"status": False})
-
-    def delete(self, request, buffer_id = None):
-        if(buffer_id):
-            buffer_obj=VideoBuffer.objects.filter(id = buffer_id).first()
-            buffer_obj.deleted=True
-            buffer_obj.checked=True
-            buffer_obj.save()
-            return Response({"status": True, "id": buffer_obj.id})
-        return Response({"status": False})
-
 
 class VideoLikeView(APIView):
     def get(self, request):
