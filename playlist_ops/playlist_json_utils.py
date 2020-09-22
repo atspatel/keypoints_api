@@ -1,3 +1,4 @@
+import constants
 from playlist_ops.models import Title, Button, MediaInfo
 from tags_models.models import LanguageTag
 
@@ -6,8 +7,11 @@ from utils.text_utils import text_to_query
 from playlist_ops.playlist_const import *
 from media_ops.models import VideoUrl, AudioUrl
 
+
 import hashlib
 video_source = "ShareChat"
+
+storage_dir = constants.storage_dir
 
 
 def get_title_obj(title, created_by=None):
@@ -52,12 +56,13 @@ def get_button_obj(button_info):
     return button_obj
 
 
-def get_media_obj(media, created_by=None):
+def get_media_obj(media, storage_dir=storage_dir, created_by=None):
     media_obj = None
 
     media_info = media.get('media_info', {})
     src = media_info.get('src', None)
     if src:
+        src = "%s/%s" % (storage_dir, src)
         media_title_obj = get_title_obj(
             media.get('title', {}), created_by=created_by)
         media_lang_obj = get_lang_obj(media.get('language', None))
@@ -69,7 +74,7 @@ def get_media_obj(media, created_by=None):
         if media.get('media_type', None) == "video":
             video_obj, _ = VideoUrl.objects.update_or_create(video_hash=media_hash, defaults={
                 "url": src,
-                "thumbnail_img": thumbnail,
+                "thumbnail_img": "%s/%s" % (storage_dir, thumbnail),
                 "hls_url": src,
                 "media_type": "video/mp4",
                 "source": video_source})
