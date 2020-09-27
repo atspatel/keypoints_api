@@ -21,22 +21,25 @@ class BboxSerializer(serializers.ModelSerializer):
 
 
 class PopupDataSerializer(serializers.ModelSerializer):
-    bbox = serializers.SerializerMethodField(read_only=True)
-    popup_type = serializers.SerializerMethodField(read_only=True)
-    media_list = serializers.SerializerMethodField(read_only=True)
+    popup_info = serializers.SerializerMethodField(read_only=True)
+    data = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = PopupData
-        fields = ('id', 'popup_type', 'bbox', 'pause_video',
-                  'show_overlay_button', 'show_close_button', 'in_duration', 'media_list')
+        fields = ('popup_info', 'data')
 
-    def get_bbox(self, obj):
-        return BboxSerializer(obj.bbox).data
+    def get_popup_info(self, obj):
+        return {
+            "popupId": obj.id,
+            "popupType": obj.popup_type.tag if obj.popup_type else None,
+            "inDuration": obj.in_duration,
+            "bbox": BboxSerializer(obj.bbox).data,
+            "pauseVideo": obj.pause_video,
+            "showOverlayButton": obj.show_overlay_button,
+            "showCloseButton": obj.show_close_button
+        }
 
-    def get_popup_type(self, obj):
-        return obj.popup_type.tag if obj.popup_type else None
-
-    def get_media_list(self, obj):
+    def get_data(self, obj):
         queryset = PopupCarouselMapping.objects.filter(
             popup_id=obj).order_by('index')
         button_list = [row.media for row in queryset]
@@ -89,7 +92,7 @@ class MediaSerializers(serializers.ModelSerializer):
 
     def get_media(self, obj):
         if (obj.media_type == MEDIA_TYPE_VIDEO and obj.video_url):
-            return {'src': obj.video_url.display_url, "thumbnail": obj.video_url.thumbnail_img}
+            return {'src': obj.video_url.compressed_url, "thumbnail": obj.video_url.thumbnail_img}
         elif (obj.media_type == MEDIA_TYPE_AUDIO and obj.audio_url):
             return {'src': obj.audio_url.display_url, "thumbnail": obj.audio_url.thumbnail_img}
         elif (obj.media_type == MEDIA_TYPE_IMAGE and obj.image_url):
