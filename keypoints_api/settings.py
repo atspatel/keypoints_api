@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'tags_models',
     'activity_ops',
     'playlist_ops',
+    'popup_ops',
 
     'corsheaders'
 ]

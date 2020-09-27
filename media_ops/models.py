@@ -27,6 +27,10 @@ class ImagesUrl(AbstractTimeClass):
                                     url_validator], null=True, blank=True)
     media_type = models.CharField(max_length=100, default='image/jpeg')
 
+    @property
+    def display_url(self):
+        return self.image_url
+
 
 class VideoUrl(AbstractTimeClass):
     video_hash = models.CharField(max_length=300, unique=True)
