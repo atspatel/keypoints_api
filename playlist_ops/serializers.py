@@ -3,6 +3,7 @@ from django.conf import settings
 from .models import Title, Button, MediaInfo
 from .models import PlaylistInfo, PlaylistMediaMapping
 
+from popup_ops.serializers import MediaSerializers
 import re
 
 from .playlist_const import *
@@ -31,16 +32,14 @@ class TitleSerializer(serializers.ModelSerializer):
         return None
 
 
-class MediaInfoSerializer(serializers.ModelSerializer):
+class PlaylistMappingSerializer(serializers.ModelSerializer):
     button_info = serializers.SerializerMethodField(read_only=True)
     title_info = serializers.SerializerMethodField(read_only=True)
-    language = serializers.SerializerMethodField(read_only=True)
     media_info = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        model = MediaInfo
-        fields = ('id', 'button_info', 'title_info',
-                  'media_type', 'media_info', 'language')
+        model = PlaylistMediaMapping
+        fields = ('id', 'button_info', 'title_info', 'media_info')
 
     def get_button_info(self, obj):
         if(obj.button):
@@ -52,17 +51,8 @@ class MediaInfoSerializer(serializers.ModelSerializer):
             return TitleSerializer(obj.title).data
         return None
 
-    def get_language(self, obj):
-        if(obj.language):
-            return obj.language.tag.lower()
-        return None
-
     def get_media_info(self, obj):
-        if (obj.media_type == MEDIA_TYPE_VIDEO and obj.video_url):
-            return {'src': obj.video_url.display_url, "thumbnail": obj.video_url.thumbnail_img}
-        elif (obj.media_type == MEDIA_TYPE_AUDIO and obj.audio_url):
-            return {'src': obj.audio_url.display_url, "thumbnail": obj.audio_url.thumbnail_img}
-        return None
+        return MediaSerializers(obj.kp_media).data
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
@@ -89,15 +79,13 @@ class PlaylistSerializer(serializers.ModelSerializer):
     def get_primary_list(self, obj):
         queryset = PlaylistMediaMapping.objects.filter(
             playlist=obj, media_category=PRIMARY).order_by('index')
-        media_list = [row.media for row in queryset]
-        data = MediaInfoSerializer(media_list, many=True).data
+        data = PlaylistMappingSerializer(queryset, many=True).data
         return data
 
     def get_secondary_list(self, obj):
         if(obj.secondary):
             queryset = PlaylistMediaMapping.objects.filter(
                 playlist=obj, media_category=SECONDARY).order_by('index')
-            media_list = [row.media for row in queryset]
-            data = MediaInfoSerializer(media_list, many=True).data
+            data = PlaylistMappingSerializer(queryset, many=True).data
             return data
         return []

@@ -67,14 +67,18 @@ class ActionSerializer(serializers.ModelSerializer):
 class ButtonSerializer(serializers.ModelSerializer):
     bbox = serializers.SerializerMethodField(read_only=True)
     action = serializers.SerializerMethodField(read_only=True)
+    pauseVideo = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ButtonData
         fields = ('id', 'name', 'start', 'end', 'shape',
-                  'background_img', 'bbox', 'action')
+                  'background_img', 'bbox', 'pauseVideo', 'action')
 
     def get_bbox(self, obj):
         return BboxSerializer(obj.bbox).data
+
+    def get_pauseVideo(self, obj):
+        return obj.pause_video_dur
 
     def get_action(self, obj):
         if obj.action_id:
@@ -92,7 +96,7 @@ class MediaSerializers(serializers.ModelSerializer):
 
     def get_media(self, obj):
         if (obj.media_type == MEDIA_TYPE_VIDEO and obj.video_url):
-            return {'src': obj.video_url.compressed_url, "thumbnail": obj.video_url.thumbnail_img}
+            return {'src': obj.video_url.display_url, "thumbnail": obj.video_url.thumbnail_img}
         elif (obj.media_type == MEDIA_TYPE_AUDIO and obj.audio_url):
             return {'src': obj.audio_url.display_url, "thumbnail": obj.audio_url.thumbnail_img}
         elif (obj.media_type == MEDIA_TYPE_IMAGE and obj.image_url):

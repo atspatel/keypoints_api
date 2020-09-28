@@ -11,7 +11,7 @@ import uuid
 
 from .playlist_const import *
 from .models import MediaInfo, Button, Title, PlaylistInfo
-from .serializers import MediaInfoSerializer, PlaylistSerializer
+from .serializers import PlaylistSerializer
 
 
 def is_valid_uuid(val):
@@ -20,21 +20,6 @@ def is_valid_uuid(val):
         return True
     except ValueError:
         return False
-
-
-# class MediaInfoView(APIView):
-#     def get(self, request):
-#         query = MediaInfo.objects.all()
-#         data = MediaInfoSerializer(query, many=True).data
-#         return Response({"status": True, "data": data})
-
-#     def post(self, request):
-#         button_name = request.data.get('button_name', None)
-#         title = request.data.get('title', json.dumps({}))
-#         src = request.data.get('button_text', None)
-#         thumbnail = request.data.get('thumbnail', None)
-#         print(button_name, title, src, thumbnail)
-#         return Response({'status': True})
 
 
 class PlaylistView(APIView):

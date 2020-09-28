@@ -133,6 +133,7 @@ class ButtonData(AbstractTimeClass):
     shape = models.CharField(max_length=20, blank=True, null=True)
     background_img = models.URLField(
         max_length=300, null=True, validators=[url_validator])
+    pause_video_dur = models.FloatField(null=True)
     action_id = models.ForeignKey(ActionDataMapping, on_delete=models.CASCADE)
 
 

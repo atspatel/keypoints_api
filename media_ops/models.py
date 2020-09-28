@@ -52,6 +52,8 @@ class VideoUrl(AbstractTimeClass):
     def display_url(self):
         if self.hls_url:
             return self.hls_url
+        elif self.compressed_url:
+            return self.compressed_url
         else:
             return self.url
 

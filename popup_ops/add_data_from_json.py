@@ -7,9 +7,6 @@ from media_ops.models import ImagesUrl, VideoUrl, AudioUrl
 
 from popup_ops.models import ActionTag, PopupTag, Bbox
 from popup_ops.models import KpMediaInfo, ButtonData, MediaButtonMapping
-from popup_ops.models import OpenUrlData, DownloadData, SeekToData, PopupData
-from popup_ops.models import PopupCarouselMapping, ActionDataMapping
-
 from popup_ops.action_utils import create_action_object, create_bbox_obj
 
 from utils.video_utils import create_thumbnail_local_video, create_video_hash

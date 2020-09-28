@@ -7,6 +7,8 @@ from accounts.models import User
 from media_ops.models import AudioUrl, VideoUrl
 from tags_models.models import LanguageTag
 
+from popup_ops.models import KpMediaInfo
+
 from .playlist_const import *
 url_validator = URLValidator(
     schemes=('http', 'https', 'ftp', 'ftps', 'rtsp', 'rtmp'))
@@ -84,6 +86,12 @@ class PlaylistInfo(AbstractTimeClass):
 class PlaylistMediaMapping(AbstractTimeClass):
     playlist = models.ForeignKey(PlaylistInfo, on_delete=models.CASCADE)
     media = models.ForeignKey(MediaInfo, on_delete=models.CASCADE)
+    kp_media = models.ForeignKey(
+        KpMediaInfo, null=True, on_delete=models.CASCADE)
     media_category = models.CharField(
         max_length=50, choices=media_categories)
+    button = models.ForeignKey(
+        Button, blank=True, null=True, on_delete=models.SET_NULL)
+    title = models.ForeignKey(
+        Title, blank=True, null=True, on_delete=models.SET_NULL)
     index = models.IntegerField(default=-1)
