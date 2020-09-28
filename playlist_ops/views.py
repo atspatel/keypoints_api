@@ -10,7 +10,7 @@ import uuid
 
 
 from .playlist_const import *
-from .models import MediaInfo, Button, Title, PlaylistInfo
+from .models import Button, Title, PlaylistInfo
 from .serializers import PlaylistSerializer
 
 

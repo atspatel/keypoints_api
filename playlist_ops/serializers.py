@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.conf import settings
-from .models import Title, Button, MediaInfo
+from .models import Title, Button
 from .models import PlaylistInfo, PlaylistMediaMapping
 
 from popup_ops.serializers import MediaSerializers

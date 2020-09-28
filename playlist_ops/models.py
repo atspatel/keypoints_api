@@ -57,20 +57,6 @@ class Button(AbstractTimeClass):
         return None
 
 
-class MediaInfo(AbstractTimeClass):
-    media_type = models.CharField(max_length=50, choices=media_types)
-    video_url = models.ForeignKey(
-        VideoUrl, blank=True, null=True, on_delete=models.CASCADE)
-    audio_url = models.ForeignKey(
-        AudioUrl, blank=True, null=True, on_delete=models.CASCADE)
-    button = models.ForeignKey(
-        Button, blank=True, null=True, on_delete=models.SET_NULL)
-    title = models.ForeignKey(
-        Title, blank=True, null=True, on_delete=models.SET_NULL)
-    language = models.ForeignKey(
-        LanguageTag, blank=True, null=True, on_delete=models.SET_NULL)
-
-
 class PlaylistInfo(AbstractTimeClass):
     name = models.CharField(max_length=255)
     language = models.ForeignKey(
@@ -85,7 +71,6 @@ class PlaylistInfo(AbstractTimeClass):
 
 class PlaylistMediaMapping(AbstractTimeClass):
     playlist = models.ForeignKey(PlaylistInfo, on_delete=models.CASCADE)
-    media = models.ForeignKey(MediaInfo, on_delete=models.CASCADE)
     kp_media = models.ForeignKey(
         KpMediaInfo, null=True, on_delete=models.CASCADE)
     media_category = models.CharField(

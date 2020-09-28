@@ -1,5 +1,6 @@
 import constants
-from playlist_ops.models import Title, Button, MediaInfo
+from popup_ops.models import KpMediaInfo
+from playlist_ops.models import Title, Button
 from tags_models.models import LanguageTag
 
 from utils.text_utils import text_to_query
@@ -78,16 +79,16 @@ def get_media_obj(media, storage_dir=storage_dir, created_by=None):
                 "hls_url": src,
                 "media_type": "video/mp4",
                 "source": video_source})
-            media_obj, _ = MediaInfo.objects.update_or_create(video_url=video_obj,
-                                                              defaults={"media_type": MEDIA_TYPE_VIDEO})
+            media_obj, _ = KpMediaInfo.objects.update_or_create(video_url=video_obj,
+                                                                defaults={"media_type": MEDIA_TYPE_VIDEO})
         elif media.get('media_type', None) == "audio":
             audio_obj, _ = AudioUrl.objects.update_or_create(audio_hash=media_hash, defaults={
                 "url": src,
                 "thumbnail_img": thumbnail,
                 "media_type": "audio/mpeg",
                 "source": video_source})
-            media_obj, _ = MediaInfo.objects.update_or_create(audio_url=audio_obj,
-                                                              defaults={"media_type": MEDIA_TYPE_AUDIO})
+            media_obj, _ = KpMediaInfo.objects.update_or_create(audio_url=audio_obj,
+                                                                defaults={"media_type": MEDIA_TYPE_AUDIO})
 
         if media_obj:
             media_obj.button = media_button_obj
