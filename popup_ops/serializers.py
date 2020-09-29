@@ -6,7 +6,7 @@ from constants import *
 
 from .models import KpMediaInfo, MediaButtonMapping, ButtonData
 from .models import Bbox, ActionDataMapping
-from .models import PopupData, PopupCarouselMapping
+from .models import PopupData, PopupCarouselMapping, SeekToData, DownloadData, OpenUrlData
 
 
 class BboxSerializer(serializers.ModelSerializer):
@@ -47,6 +47,24 @@ class PopupDataSerializer(serializers.ModelSerializer):
         return data
 
 
+class SeekToDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SeekToData
+        fields = ('id', 'duration', 'toPlay')
+
+
+class DownloadDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DownloadData
+        fields = ('id', 'url', 'filename')
+
+
+class OpenUrlDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OpenUrlData
+        fields = ('id', 'url', 'inPopup')
+
+
 class ActionSerializer(serializers.ModelSerializer):
     type = serializers.SerializerMethodField()
     data = serializers.SerializerMethodField()
@@ -62,6 +80,12 @@ class ActionSerializer(serializers.ModelSerializer):
         action_type = obj.action_id.tag if obj.action_id else None
         if action_type == "openPopup":
             return PopupDataSerializer(obj.popup_id).data
+        elif action_type == "seekTo":
+            return SeekToDataSerializer(obj.seekto_id).data
+        elif action_type == "download":
+            return DownloadDataSerializer(obj.download_id).data
+        elif action_type == "openUrl":
+            return OpenUrlDataSerializer(obj.openurl_id).data
 
 
 class ButtonSerializer(serializers.ModelSerializer):

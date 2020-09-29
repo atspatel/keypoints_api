@@ -72,8 +72,6 @@ class KpMediaInfo(AbstractTimeClass):
     image_url = models.ForeignKey(
         ImagesUrl, blank=True, null=True, on_delete=models.CASCADE)
 
-    # title = models.ForeignKey(
-    #     Title, blank=True, null=True, on_delete=models.SET_NULL)
     language = models.ForeignKey(
         LanguageTag, blank=True, null=True, on_delete=models.SET_NULL)
 
