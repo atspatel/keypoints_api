@@ -28,8 +28,8 @@ for f in sorted(os.listdir(json_folder)):
     title_obj = get_title_obj(data.get('title', {}), created_by=admin_user)
     lang_obj = get_lang_obj(data.get('language', "Hindi"))
 
-    videoId = data.get('videoId', None)
-    if videoId:
+    name = data.get('name', None)
+    if name:
         primary = data.get('primary', 'video')
         primaryList = data.get('primaryList', [])
 
@@ -43,7 +43,7 @@ for f in sorted(os.listdir(json_folder)):
             if isSingleSecondary and len(secondaryList) > 1:
                 secondaryList = secondaryList[:1]
 
-        playlist_obj, _ = PlaylistInfo.objects.update_or_create(name=videoId, defaults={
+        playlist_obj, _ = PlaylistInfo.objects.update_or_create(name=name, defaults={
             "language": lang_obj,
             "title": title_obj,
             "primary": primary.lower(),
@@ -53,16 +53,33 @@ for f in sorted(os.listdir(json_folder)):
         })
         PlaylistMediaMapping.objects.filter(playlist=playlist_obj).delete()
         for index, media in enumerate(primaryList):
-            media_obj = get_media_obj(media, created_by=admin_user)
+            media_obj = get_media_obj(
+                media.get('media_info', {}), created_by=admin_user)
+            title_obj = get_title_obj(
+                media.get('title', {}), created_by=admin_user)
+            button_obj = get_button_obj(media.get('button_info', {}))
+            print(media_obj)
             if media_obj:
                 mapping_obj = PlaylistMediaMapping.objects.update_or_create(
-                    playlist=playlist_obj, media=media_obj, defaults={'media_category': PRIMARY, "index": index})
+                    playlist=playlist_obj, kp_media=media_obj, defaults={
+                        'title': title_obj,
+                        'button': button_obj,
+                        'media_category': PRIMARY,
+                        "index": index})
 
         if secondary:
             for index, media in enumerate(secondaryList):
-                media_obj = get_media_obj(media, created_by=admin_user)
+                media_obj = get_media_obj(
+                    media.get('media_info', {}), created_by=admin_user)
+                title_obj = get_title_obj(
+                    media.get('title', {}), created_by=admin_user)
+                button_obj = get_button_obj(media.get('button_info', {}))
                 if media_obj:
                     mapping_obj = PlaylistMediaMapping.objects.update_or_create(
-                        playlist=playlist_obj, media=media_obj, defaults={'media_category': SECONDARY, "index": index})
+                        playlist=playlist_obj, kp_media=media_obj, defaults={
+                            'title': title_obj,
+                            'button': button_obj,
+                            'media_category': SECONDARY,
+                            "index": index})
 
         print(f, playlist_obj.id)

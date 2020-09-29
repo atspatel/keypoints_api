@@ -59,17 +59,13 @@ def get_button_obj(button_info):
 
 def get_media_obj(media, storage_dir=storage_dir, created_by=None):
     media_obj = None
-
-    media_info = media.get('media_info', {})
-    src = media_info.get('src', None)
+    media_data = media.get('media', {})
+    src = media_data.get('src', None)
     if src:
         src = "%s/%s" % (storage_dir, src)
-        media_title_obj = get_title_obj(
-            media.get('title', {}), created_by=created_by)
-        media_lang_obj = get_lang_obj(media.get('language', None))
-        media_button_obj = get_button_obj(media.get('button_info', {}))
 
-        thumbnail = media_info.get('thumbnail', None)
+        thumbnail = media_data.get('thumbnail', None)
+        name = media.get('name', None)
         media_hash = hashlib.sha256(src.encode('utf-8')).hexdigest()
 
         if media.get('media_type', None) == "video":
@@ -91,9 +87,7 @@ def get_media_obj(media, storage_dir=storage_dir, created_by=None):
                                                                 defaults={"media_type": MEDIA_TYPE_AUDIO})
 
         if media_obj:
-            media_obj.button = media_button_obj
+            media_lang_obj = get_lang_obj(media.get('language', None))
             media_obj.language = media_lang_obj
-            media_obj.title = media_title_obj
-
-        media_obj.save()
+            media_obj.save()
     return media_obj
