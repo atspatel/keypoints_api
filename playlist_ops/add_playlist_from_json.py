@@ -58,7 +58,6 @@ for f in sorted(os.listdir(json_folder)):
             title_obj = get_title_obj(
                 media.get('title', {}), created_by=admin_user)
             button_obj = get_button_obj(media.get('button_info', {}))
-            print(media_obj)
             if media_obj:
                 mapping_obj = PlaylistMediaMapping.objects.update_or_create(
                     playlist=playlist_obj, kp_media=media_obj, defaults={
