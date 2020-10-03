@@ -6,7 +6,7 @@ from .models import PlaylistInfo, PlaylistMediaMapping
 from popup_ops.serializers import MediaSerializers
 import re
 
-from .playlist_const import *
+from constants import *
 
 
 def get_storage_url(url):

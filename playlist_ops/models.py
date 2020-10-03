@@ -9,7 +9,7 @@ from tags_models.models import LanguageTag
 
 from popup_ops.models import KpMediaInfo
 
-from .playlist_const import *
+from constants import *
 url_validator = URLValidator(
     schemes=('http', 'https', 'ftp', 'ftps', 'rtsp', 'rtmp'))
 

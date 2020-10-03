@@ -4,13 +4,15 @@ from playlist_ops.models import Title, Button
 from tags_models.models import LanguageTag
 
 from utils.text_utils import text_to_query
+from utils.storage_utils import get_full_path
 
-from playlist_ops.playlist_const import *
+from constants import *
 from media_ops.models import VideoUrl, AudioUrl
 
+from popup_ops.action_utils import create_media_object
 
 import hashlib
-video_source = "ShareChat"
+video_source = "KeyPoints"
 
 storage_dir = constants.storage_dir
 
@@ -57,37 +59,45 @@ def get_button_obj(button_info):
     return button_obj
 
 
-def get_media_obj(media, storage_dir=storage_dir, created_by=None):
+def get_media_obj(media_info, storage_dir=storage_dir, created_by=None):
     media_obj = None
-    media_data = media.get('media', {})
+    media_id = media_info.get("id", None)
+    if media_id:
+        media_obj = KpMediaInfo.objects.filter(id=media_id).first()
+        return media_obj
+
+    media_data = media_info.get('media', {})
     src = media_data.get('src', None)
     if src:
-        src = "%s/%s" % (storage_dir, src)
+        src = get_full_path(src)
 
         thumbnail = media_data.get('thumbnail', None)
-        name = media.get('name', None)
+        name = media_info.get('name', None)
         media_hash = hashlib.sha256(src.encode('utf-8')).hexdigest()
 
-        if media.get('media_type', None) == "video":
+        if media_info.get('media_type', None) == "video":
             video_obj, _ = VideoUrl.objects.update_or_create(video_hash=media_hash, defaults={
                 "url": src,
-                "thumbnail_img": "%s/%s" % (storage_dir, thumbnail),
+                "thumbnail_img": get_full_path(thumbnail),
                 "hls_url": src,
                 "media_type": "video/mp4",
                 "source": video_source})
-            media_obj, _ = KpMediaInfo.objects.update_or_create(video_url=video_obj,
-                                                                defaults={"media_type": MEDIA_TYPE_VIDEO})
-        elif media.get('media_type', None) == "audio":
+            media_obj = create_media_object(media_info, video_obj)
+            # media_obj, _ = KpMediaInfo.objects.update_or_create(video_url=video_obj,
+            #                                                     defaults={"media_type": MEDIA_TYPE_VIDEO})
+        elif media_info.get('media_type', None) == "audio":
             audio_obj, _ = AudioUrl.objects.update_or_create(audio_hash=media_hash, defaults={
                 "url": src,
                 "thumbnail_img": thumbnail,
                 "media_type": "audio/mpeg",
                 "source": video_source})
+
+            # TODO:: replace with create_media_object, add audio and images to create_media_object
             media_obj, _ = KpMediaInfo.objects.update_or_create(audio_url=audio_obj,
                                                                 defaults={"media_type": MEDIA_TYPE_AUDIO})
 
         if media_obj:
-            media_lang_obj = get_lang_obj(media.get('language', None))
+            media_lang_obj = get_lang_obj(media_info.get('language', None))
             media_obj.language = media_lang_obj
             media_obj.save()
     return media_obj

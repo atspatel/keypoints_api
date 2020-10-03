@@ -9,7 +9,7 @@ import hashlib
 import uuid
 
 
-from .playlist_const import *
+from constants import *
 from .models import Button, Title, PlaylistInfo
 from .serializers import PlaylistSerializer
 

@@ -4,7 +4,7 @@ import hashlib
 
 from accounts.models import User
 
-from playlist_ops.playlist_const import *
+from constants import *
 from playlist_ops.playlist_json_utils import get_title_obj, get_lang_obj, get_button_obj, get_media_obj
 
 from playlist_ops.models import PlaylistInfo, PlaylistMediaMapping
@@ -20,7 +20,7 @@ for f in sorted(os.listdir(json_folder)):
 
     data = json.load(open(json_file_path, 'r'))
 
-    video_source = "ShareChat"
+    video_source = "KeyPoints"
 
     parent_title_obj = None
     parent_lang = None
