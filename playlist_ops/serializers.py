@@ -10,7 +10,7 @@ from constants import *
 
 
 def get_storage_url(url):
-    return urljoin(settings.GS_STATIC_URL, url)
+    return urljoin(settings.STORAGE_STATIC_URL, url)
 
 
 class ButtonSerializer(serializers.ModelSerializer):

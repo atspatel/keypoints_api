@@ -169,6 +169,10 @@ LOGOUT_REDIRECT_URL = 'home'
 
 AUTH_USER_MODEL = 'accounts.User'
 
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-GS_BUCKET_NAME = 'kp_videos'
-GS_STATIC_URL = "https://storage.googleapis.com/%s/" % (GS_BUCKET_NAME)
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = config["AWS_ACCESS_KEY_ID"]
+AWS_SECRET_ACCESS_KEY = config["AWS_SECRET_ACCESS_KEY"]
+
+AWS_STORAGE_BUCKET_NAME = 'keypoints-data'
+STORAGE_STATIC_URL = "https://%s.s3.ap-south-1.amazonaws.com/" % (
+    AWS_STORAGE_BUCKET_NAME)

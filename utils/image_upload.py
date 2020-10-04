@@ -32,7 +32,7 @@ def upload_external_image_content_string(content_string, name, user=None):
     else:
         path = default_storage.save(
             "ImageSets/%s" % name, ContentFile(content_string))
-        image_url = urljoin(settings.GS_STATIC_URL, path)
+        image_url = urljoin(settings.STORAGE_STATIC_URL, path)
         tn_image_url = None
         img = Image.open(io.BytesIO(content_string))
         img.thumbnail(thumbnail_size)
@@ -43,7 +43,7 @@ def upload_external_image_content_string(content_string, name, user=None):
 
         tn_path = default_storage.save(
             "thumbnails/%s" % name, ContentFile(tn_content_string))
-        tn_image_url = urljoin(settings.GS_STATIC_URL, tn_path)
+        tn_image_url = urljoin(settings.STORAGE_STATIC_URL, tn_path)
 
         image_obj = ImagesUrl(
             created_by=user,
@@ -67,7 +67,7 @@ def upload_image(image_bytes, user=None):
     else:
         path = default_storage.save(
             "ImageSets/%s" % image_bytes.name, ContentFile(content_string))
-        image_url = urljoin(settings.GS_STATIC_URL, path)
+        image_url = urljoin(settings.STORAGE_STATIC_URL, path)
 
         tn_image_url = None
         if content_type.split("/",  1)[0] == "image":
@@ -80,7 +80,7 @@ def upload_image(image_bytes, user=None):
 
             tn_path = default_storage.save(
                 "thumbnails/%s" % image_bytes.name, ContentFile(tn_content_string))
-            tn_image_url = urljoin(settings.GS_STATIC_URL, tn_path)
+            tn_image_url = urljoin(settings.STORAGE_STATIC_URL, tn_path)
 
         image_obj = ImagesUrl(
             created_by=user,
@@ -102,7 +102,7 @@ def upload_profile_image(image_bytes):
     else:
         path = default_storage.save("ProfilePics/%s" %
                                     image_bytes.name, ContentFile(content_string))
-        image_url = urljoin(settings.GS_STATIC_URL, path)
+        image_url = urljoin(settings.STORAGE_STATIC_URL, path)
         image_obj = UserImagesUrl(
             image_url=image_url,
             image_hash=hash_val,
