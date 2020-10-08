@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'activity_ops',
     'playlist_ops',
     'popup_ops',
+    'lily_ops',
 
     'corsheaders'
 ]
