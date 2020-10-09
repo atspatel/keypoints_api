@@ -22,7 +22,7 @@ class QuizView(APIView):
         if quiz_id:
             quiz_obj = QuizInfo.objects.filter(name=quiz_id).first()
             return Response({'data': QuizInfoSerializer(quiz_obj, context={'session': session}).data, 'status': True})
-        return Response({'status': False, data: {}})
+        return Response({'status': False, "data": {}})
 
 
 class QuizActivityView(APIView):
