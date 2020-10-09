@@ -70,3 +70,7 @@ class QuizCharacterVoteCount(AbstractTimeClass):
     character = models.ForeignKey(
         LilyCharacters, null=True, on_delete=models.SET_NULL)
     number = models.IntegerField(default=1)
+
+
+class DummyTable(models.Model):
+    dummy = models.CharField(max_length=5)
