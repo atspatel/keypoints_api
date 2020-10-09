@@ -46,6 +46,8 @@ for quiz in data:
     isTimer = quiz['isTimer']
     credit_video = os.path.join(
         storage_dir, quiz['credit_video']) if quiz['credit_video'] else None
+    hint_video = os.path.join(
+        storage_dir, quiz['hint_video']) if quiz['hint_video'] else None
     next_quiz = quiz['next_quiz']
 
     episode_obj = Episode.objects.filter(ep=episode).first()
@@ -59,5 +61,6 @@ for quiz in data:
             "question_part1": question_part1,
             "question_part2": question_part2,
             "isTimer": isTimer,
-            "credit_video": credit_video})
+            "credit_video": credit_video,
+            "hint_video": hint_video})
     print('quiz', quiz_obj.id)
