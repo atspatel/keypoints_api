@@ -42,7 +42,7 @@ class QuizInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizInfo
         fields = ('id', 'quiz_type', 'episode', 'start_time',
-                  'end_time', 'question', 'selected', 'isTimer', 'credit_video', 'characters', 'next_ep')
+                  'end_time', 'question', 'selected', 'isTimer', 'credit_video', 'hint_video', 'characters', 'next_ep')
 
     def get_characters(self, obj):
         characters = LilyCharacters.objects.all()

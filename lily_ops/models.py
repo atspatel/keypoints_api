@@ -49,6 +49,8 @@ class QuizInfo(AbstractTimeClass):
     isTimer = models.BooleanField(default=True)
     credit_video = models.URLField(max_length=500, validators=[
         url_validator], null=True, blank=True)
+    hint_video = models.URLField(max_length=500, validators=[
+        url_validator], null=True, blank=True)
 
     def __str__(self):
         if (self.name):
