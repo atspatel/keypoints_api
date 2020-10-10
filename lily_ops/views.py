@@ -6,6 +6,8 @@ from .serializers import QuizInfoSerializer
 import logging
 import uuid
 
+from constants import storage_dir
+
 
 def is_valid_uuid(val):
     try:
@@ -19,6 +21,24 @@ class QuizView(APIView):
     def get(self, request):
         quiz_id = request.GET.get('quiz_id', None)
         session = request.GET.get('session', None)
+        if (quiz_id == "quiz_e04q08"):
+            isCorrect = False
+            if session:
+                activity_obj = QuizActivity.objects.filter(
+                    session=session).order_by('-creation_date').first()
+                correct_answer = LilyCharacters.objects.filter(
+                    name="NEENA").first()
+                if activity_obj and activity_obj.answer == correct_answer:
+                    isCorrect = True
+            return Response({"status": True, "data": {"id": "quiz_e04q08",
+                                                      "quiz_type": "credit",
+                                                      "episode": 4,
+                                                      "start_time": 1046,
+                                                      "end_time": -1,
+                                                      "credit_video": "%s/lily/video/e04/credit_e04/credit_e04.mp4" % (storage_dir),
+                                                      "isShare": True,
+                                                      "isCorrect": isCorrect
+                                                      }})
         if quiz_id:
             quiz_obj = QuizInfo.objects.filter(name=quiz_id).first()
             return Response({'data': QuizInfoSerializer(quiz_obj, context={'session': session}).data, 'status': True})
