@@ -36,6 +36,7 @@ class QuizView(APIView):
                                                       "start_time": 1046,
                                                       "end_time": -1,
                                                       "credit_video": "%s/lily/video/e04/credit_e04/credit_e04.mp4" % (storage_dir),
+                                                      "skip_dur": 60,
                                                       "isShare": True,
                                                       "isCorrect": isCorrect
                                                       }})
