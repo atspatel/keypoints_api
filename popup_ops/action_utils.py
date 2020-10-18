@@ -7,7 +7,7 @@ from constants import *
 from media_ops.models import ImagesUrl, VideoUrl, AudioUrl
 
 from popup_ops.models import ActionTag, PopupTag, Bbox
-from popup_ops.models import KpMediaInfo, ButtonData, MediaButtonMapping
+from popup_ops.models import KpMediaInfo, ButtonData, ButtonInstance, MediaButtonMapping
 from popup_ops.models import OpenUrlData, DownloadData, SeekToData, PopupData
 from popup_ops.models import PopupCarouselMapping, ActionDataMapping
 
@@ -121,26 +121,61 @@ def create_action_object(action, action_data):
 
 
 def create_button_obj(button):
-    action = button.get('action', None)
+    button_obj = None
+    button_id = button.get('id', None)
+    if(button_id):
+        button_obj = ButtonData.objects.filter(id=button_id).first()
+        if button_obj:
+            return button_obj
+
+    name = button.get('name', None)
+    title = button.get('title', None)
+    shape = button.get('shape', None)
+    background_img = button.get('bg_image', None)
+    style = button.get('button_style', None)
+
+    button_obj = ButtonData.objects.create(
+        name=name,
+        title=title,
+        shape=shape,
+        background_img=background_img,
+        style=style
+    )
+    return button_obj
+
+
+def create_button_instance_object(button_instance):
+    button = button_instance.get('button_obj', None)
+    button_obj = create_button_obj(button)
+
+    id = button_instance.get('id', None)
+    if(id):
+        button_instance_obj = ButtonInstance.objects.filter(id=id).first()
+        if button_instance_obj:
+            return button_instance_obj
+
+    action = button_instance.get('action', None)
+
     action_type = action.get('type', None)
     action_data = action.get('data', None)
     action_obj = create_action_object(action_type, action_data)
 
-    bbox = button.get('bbox', None)
-    bbox_obj = create_bbox_obj(bbox)
+    time = button_instance.get('time', None)
+    transform = button_instance.get('transform', None)
 
-    button_obj = ButtonData.objects.create(
-        name=button.get('name', None),
-        start=button.get('start', None),
-        end=button.get('end', None),
-        bbox=bbox_obj,
-        shape=button.get('shape', None),
-        pause_video_dur=button.get('pauseVideo', None),
-        background_img=button.get('background_img', None),
-        action_id=action_obj
+    start = time.get('start', None)
+    end = time.get('end', None)
+    pause_video_dur = button_instance.get('pauseVideo', None)
+
+    button_instance_obj = ButtonInstance.objects.create(
+        button_obj=button_obj,
+        start=start,
+        end=end,
+        pause_video_dur=pause_video_dur,
+        transform=transform,
+        action_id=action_obj,
     )
-
-    return button_obj
+    return button_instance_obj
 
 
 def create_media_object(media_info, video_obj):
@@ -159,8 +194,8 @@ def create_media_object(media_info, video_obj):
 
         MediaButtonMapping.objects.filter(media=media_obj).delete()
         butttons = media_info.get('buttons', [])
-        for button in butttons:
-            button_obj = create_button_obj(button)
+        for button_instance in butttons:
+            button_obj = create_button_instance_object(button_instance)
             MediaButtonMapping.objects.get_or_create(
                 media=media_obj, button=button_obj)
 
