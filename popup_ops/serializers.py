@@ -4,7 +4,7 @@ from django.conf import settings
 import re
 from constants import *
 
-from .models import KpMediaInfo, MediaButtonMapping, ButtonData
+from .models import KpMediaInfo, MediaButtonMapping, ButtonData, ButtonInstance
 from .models import Bbox, ActionDataMapping
 from .models import PopupData, PopupCarouselMapping, SeekToData, DownloadData, OpenUrlData
 
@@ -89,17 +89,30 @@ class ActionSerializer(serializers.ModelSerializer):
 
 
 class ButtonSerializer(serializers.ModelSerializer):
-    bbox = serializers.SerializerMethodField(read_only=True)
-    action = serializers.SerializerMethodField(read_only=True)
-    pauseVideo = serializers.SerializerMethodField(read_only=True)
-
     class Meta:
         model = ButtonData
-        fields = ('id', 'name', 'start', 'end', 'shape',
-                  'background_img', 'bbox', 'pauseVideo', 'action')
+        fields = ('id', 'name', 'title', 'shape',
+                  'background_img', 'style')
 
-    def get_bbox(self, obj):
-        return BboxSerializer(obj.bbox).data
+
+class ButtonInstanceSerializer(serializers.ModelSerializer):
+    button_obj = serializers.SerializerMethodField(read_only=True)
+    time = serializers.SerializerMethodField(read_only=True)
+    pauseVideo = serializers.SerializerMethodField(read_only=True)
+    action = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = ButtonInstance
+        fields = ('id', 'button_obj', 'time',
+                  'pauseVideo', 'transform', 'action')
+
+    def get_button_obj(self, obj):
+        if obj.button_obj:
+            return ButtonSerializer(obj.button_obj).data
+        return None
+
+    def get_time(self, obj):
+        return {"start": obj.start, "end": obj.end}
 
     def get_pauseVideo(self, obj):
         return obj.pause_video_dur
@@ -131,5 +144,5 @@ class MediaSerializers(serializers.ModelSerializer):
         queryset = MediaButtonMapping.objects.filter(
             media=obj).order_by('index')
         button_list = [row.button for row in queryset]
-        data = ButtonSerializer(button_list, many=True).data
+        data = ButtonInstanceSerializer(button_list, many=True).data
         return data

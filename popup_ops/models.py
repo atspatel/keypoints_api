@@ -125,17 +125,23 @@ class ActionDataMapping(AbstractTimeClass):
 
 class ButtonData(AbstractTimeClass):
     name = models.TextField(null=True)
-    start = models.FloatField(default=0.0)
-    end = models.FloatField(default=-1)
-    bbox = models.ForeignKey(Bbox, null=True, on_delete=models.SET_NULL)
+    title = models.TextField(null=True)
     shape = models.CharField(max_length=20, blank=True, null=True)
     background_img = models.URLField(
         max_length=300, null=True, validators=[url_validator])
+    style = models.JSONField(null=True)
+
+
+class ButtonInstance(AbstractTimeClass):
+    button_obj = models.ForeignKey(ButtonData, on_delete=models.CASCADE)
+    start = models.FloatField(default=0.0)
+    end = models.FloatField(default=-1)
     pause_video_dur = models.FloatField(null=True)
+    transform = models.JSONField(null=True)
     action_id = models.ForeignKey(ActionDataMapping, on_delete=models.CASCADE)
 
 
 class MediaButtonMapping(AbstractTimeClass):
     media = models.ForeignKey(KpMediaInfo, on_delete=models.CASCADE)
-    button = models.ForeignKey(ButtonData, on_delete=models.CASCADE)
+    button = models.ForeignKey(ButtonInstance, on_delete=models.CASCADE)
     index = models.IntegerField(default=-1)
