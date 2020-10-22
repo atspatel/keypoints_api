@@ -5,8 +5,19 @@ import re
 from constants import *
 
 from .models import KpMediaInfo, MediaButtonMapping, ButtonData, ButtonInstance
-from .models import Bbox, ActionDataMapping
+from .models import Bbox, ActionDataMapping, AspectRatio
 from .models import PopupData, PopupCarouselMapping, SeekToData, DownloadData, OpenUrlData
+
+
+class AspectRatioSerializer(serializers.ModelSerializer):
+    size = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = AspectRatio
+        fields = ('id', 'ratio_s', 'ratio', 'image', 'size')
+
+    def get_size(self, obj):
+        return {"width": obj.width, 'height': obj.height}
 
 
 class BboxSerializer(serializers.ModelSerializer):

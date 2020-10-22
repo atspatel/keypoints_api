@@ -13,6 +13,7 @@ url_validator = URLValidator(
 
 action = ['changeVideo', 'changeAudio',
           'openUrl', 'download', 'seekTo', 'openPopup']
+aspect_ratio = [9/16, 4/5, 1/1, 4/3, 16/9]
 
 popup = ['mediaCarousel', 'html']
 
@@ -60,6 +61,27 @@ class Bbox(AbstractTimeClass):
     width = models.FloatField()
     height = models.FloatField()
 
+    def __str__(self):
+        return "%0.2f--%0.2f--%0.2f--%0.2f" % (self.top, self.left, self.width, self.height)
+
+
+class AspectRatio(AbstractTimeClass):
+    ratio_s = models.CharField(max_length=10, null=True)
+    ratio = models.FloatField(unique=True)
+    image = models.URLField(max_length=300, validators=[
+                            url_validator], null=True)
+    width = models.IntegerField(null=True)
+    height = models.IntegerField(null=True)
+
+    def __str__(self):
+        return self.ratio_s
+
+    @classmethod
+    def get_default_ratio(cls):
+        ratio, created = cls.objects.get_or_create(
+            ratio=16/9, defaults=dict(ratio_s='16:9', width=720, height=1280))
+        return ratio.id
+
 
 class KpMediaInfo(AbstractTimeClass):
     media_type = models.CharField(max_length=50, choices=media_types)
@@ -92,13 +114,19 @@ class SeekToData(AbstractTimeClass):
 
 
 class PopupData(AbstractTimeClass):
+    name = models.TextField(null=True)
     popup_type = models.ForeignKey(
         PopupTag, null=True, on_delete=models.SET_NULL)
+    aspect_ratio = models.ForeignKey(
+        AspectRatio, default=AspectRatio.get_default_ratio(), on_delete=models.SET_DEFAULT)
     bbox = models.ForeignKey(Bbox, null=True, on_delete=models.SET_NULL)
     pause_video = models.BooleanField(default=True)
     show_overlay_button = models.BooleanField(default=False)
     show_close_button = models.BooleanField(default=True)
     in_duration = models.FloatField(default=1.0)
+
+    def __str__(self):
+        return self.name
 
 
 class PopupCarouselMapping(AbstractTimeClass):
@@ -130,6 +158,9 @@ class ButtonData(AbstractTimeClass):
     background_img = models.URLField(
         max_length=300, null=True, validators=[url_validator])
     style = models.JSONField(null=True)
+
+    def __str__(self):
+        return self.name
 
 
 class ButtonInstance(AbstractTimeClass):

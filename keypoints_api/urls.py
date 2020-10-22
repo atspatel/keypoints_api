@@ -29,4 +29,5 @@ urlpatterns = [
     re_path('playlist_ops/', include('playlist_ops.urls')),
     re_path('popup_ops/', include('popup_ops.urls')),
     re_path('lily/', include('lily_ops.urls')),
+    re_path('media/', include('media_ops.urls')),
 ]

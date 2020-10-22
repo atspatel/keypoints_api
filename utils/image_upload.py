@@ -65,8 +65,9 @@ def upload_image(image_bytes, user=None):
     if image_obj:
         return image_obj
     else:
+        image_name = "%s_%s" % (hash_val[:15], image_bytes.name)
         path = default_storage.save(
-            "ImageSets/%s" % image_bytes.name, ContentFile(content_string))
+            "ImageSets/%s" % image_name, ContentFile(content_string))
         image_url = urljoin(settings.STORAGE_STATIC_URL, path)
 
         tn_image_url = None
@@ -75,11 +76,11 @@ def upload_image(image_bytes, user=None):
             img.thumbnail(thumbnail_size)
 
             imgByteArr = io.BytesIO()
-            img.save(imgByteArr, format='JPEG')
+            img.save(imgByteArr, format=content_type.split("/",  1)[1])
             tn_content_string = imgByteArr.getvalue()
 
             tn_path = default_storage.save(
-                "thumbnails/%s" % image_bytes.name, ContentFile(tn_content_string))
+                "thumbnails/%s" % image_name, ContentFile(tn_content_string))
             tn_image_url = urljoin(settings.STORAGE_STATIC_URL, tn_path)
 
         image_obj = ImagesUrl(
