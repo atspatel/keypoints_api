@@ -123,6 +123,7 @@ dmypy.json
 *.DS_Store
 *.mp4
 .vscode
+.VSCodeCounter
 *.csv
 
 z_data/*

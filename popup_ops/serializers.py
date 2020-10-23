@@ -31,6 +31,21 @@ class BboxSerializer(serializers.ModelSerializer):
         return {'top': obj.top, 'left': obj.left, 'width': obj.width, 'height': obj.height}
 
 
+class PopupDataMiniSerializer(serializers.ModelSerializer):
+    popup_info = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = PopupData
+        fields = ('popup_info', )
+
+    def get_popup_info(self, obj):
+        return {
+            "id": obj.id,
+            "name": obj.name,
+            "popupType": obj.popup_type.tag if obj.popup_type else None,
+        }
+
+
 class PopupDataSerializer(serializers.ModelSerializer):
     popup_info = serializers.SerializerMethodField(read_only=True)
     data = serializers.SerializerMethodField(read_only=True)
@@ -41,7 +56,8 @@ class PopupDataSerializer(serializers.ModelSerializer):
 
     def get_popup_info(self, obj):
         return {
-            "popupId": obj.id,
+            "id": obj.id,
+            "name": obj.name,
             "popupType": obj.popup_type.tag if obj.popup_type else None,
             "inDuration": obj.in_duration,
             "bbox": BboxSerializer(obj.bbox).data,
@@ -53,9 +69,10 @@ class PopupDataSerializer(serializers.ModelSerializer):
     def get_data(self, obj):
         queryset = PopupCarouselMapping.objects.filter(
             popup_id=obj).order_by('index')
-        button_list = [row.media for row in queryset]
+        button_list = [row.media for row in queryset if row.media]
         data = MediaSerializers(button_list, many=True).data
         return data
+        return []
 
 
 class SeekToDataSerializer(serializers.ModelSerializer):
