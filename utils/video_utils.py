@@ -34,10 +34,10 @@ def compress_video(finput):
 
     f_original = finput
     if not os.path.isfile(f_compressed):
-        # ff = FFmpeg(inputs={finput: None}, outputs={
-        #             f_compressed: '-vcodec libx265 -crf 28'})
-        ff = FFmpeg(inputs={finput: "-y -t 90"}, outputs={
-            f_compressed: '-vcodec libx264 -vf scale=w=720:h=800:force_original_aspect_ratio=decrease'})
+        ff = FFmpeg(inputs={finput: None}, outputs={
+                    f_compressed: '-vcodec libx265 -crf 25'})
+        # ff = FFmpeg(inputs={finput: "-y -t 90"}, outputs={
+        #     f_compressed: '-vcodec libx264 -vf scale=w=720:h=800:force_original_aspect_ratio=decrease'})
         (stdout, stderr) = ff.run()
         return f_original, f_compressed
     else:
@@ -67,15 +67,24 @@ def upload_file(file_path, name, path="videos"):
     logging.info('uploading........ %s' % file_path)
     file_path = default_storage.save(
         "%s/%s" % (path, name), File(open(file_path, 'rb')))
-    file_url = urljoin(settings.GS_STATIC_URL, file_path)
+    file_url = urljoin(settings.STORAGE_STATIC_URL, file_path)
     return file_url
 
 
-def create_video_obj_from_file(filepath, video_hash, thumbnail_image, user=None):
+def create_video_obj_from_file(filepath, video_hash, thumbnail_image, video_id=None, user=None):
     _, filename = os.path.split(filepath)
     video_url = upload_file(filepath, filename, 'original')
-    video_obj = VideoUrl.objects.create(
-        video_hash=video_hash, url=video_url, thumbnail_img=thumbnail_image, created_by=user)
+    if video_id:
+        video_obj = VideoUrl.objects.create(
+            id=video_id,
+            video_hash=video_hash,
+            url=video_url,
+            thumbnail_img=thumbnail_image,
+            created_by=user
+        )
+    else:
+        video_obj = VideoUrl.objects.create(
+            video_hash=video_hash, url=video_url, thumbnail_img=thumbnail_image, created_by=user)
 
     filepath, f_compressed, (video_folder,
                              foutput) = compress_and_hls_video(filepath)
