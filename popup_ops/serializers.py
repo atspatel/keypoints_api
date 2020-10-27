@@ -5,8 +5,9 @@ import re
 from constants import *
 
 from .models import KpMediaInfo, MediaButtonMapping, ButtonData, ButtonInstance
-from .models import Bbox, ActionDataMapping, AspectRatio
-from .models import PopupData, PopupCarouselMapping, SeekToData, DownloadData, OpenUrlData
+from .models import ActionDataMapping, AspectRatio
+from .models import PopupData, PopupInstance, PopupCarouselMapping, Bbox
+from .models import SeekToData, DownloadData, OpenUrlData
 
 
 class AspectRatioSerializer(serializers.ModelSerializer):
@@ -31,40 +32,63 @@ class BboxSerializer(serializers.ModelSerializer):
         return {'top': obj.top, 'left': obj.left, 'width': obj.width, 'height': obj.height}
 
 
-class PopupDataMiniSerializer(serializers.ModelSerializer):
-    popup_info = serializers.SerializerMethodField(read_only=True)
+class PopupDataSerializer(serializers.ModelSerializer):
+    type = serializers.SerializerMethodField(read_only=True)
+    aspect_ratio = serializers.SerializerMethodField(read_only=True)
+    inDuration = serializers.FloatField(source='in_duration')
+    showOverlayButton = serializers.BooleanField(source='show_overlay_button')
+    showCloseButton = serializers.BooleanField(source='show_close_button')
 
     class Meta:
         model = PopupData
-        fields = ('popup_info', )
+        fields = ('id', 'name', 'type', 'aspect_ratio', 'inDuration',
+                  'showOverlayButton', 'showCloseButton')
 
-    def get_popup_info(self, obj):
+    def get_type(self, obj):
+        return obj.popup_type.tag if obj.popup_type else None
+
+    def get_aspect_ratio(self, obj):
+        if obj.aspect_ratio:
+            return AspectRatioSerializer(obj.aspect_ratio).data
+        return None
+
+
+class PopupInstanceMiniSerializer(serializers.ModelSerializer):
+    popup_obj = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = PopupInstance
+        fields = ('popup_obj', )
+
+    def get_popup_obj(self, obj):
         return {
             "id": obj.id,
-            "name": obj.name,
-            "popupType": obj.popup_type.tag if obj.popup_type else None,
+            "name": obj.name
         }
 
 
-class PopupDataSerializer(serializers.ModelSerializer):
-    popup_info = serializers.SerializerMethodField(read_only=True)
+class PopupInstanceSerializer(serializers.ModelSerializer):
+    popup_obj = serializers.SerializerMethodField(read_only=True)
+    bbox = serializers.SerializerMethodField(read_only=True)
+    pauseVideo = serializers.SerializerMethodField(read_only=True)
     data = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = PopupData
-        fields = ('popup_info', 'data')
+        fields = ('id', 'popup_obj', 'bbox', 'pauseVideo', 'data')
 
-    def get_popup_info(self, obj):
-        return {
-            "id": obj.id,
-            "name": obj.name,
-            "popupType": obj.popup_type.tag if obj.popup_type else None,
-            "inDuration": obj.in_duration,
-            "bbox": BboxSerializer(obj.bbox).data,
-            "pauseVideo": obj.pause_video,
-            "showOverlayButton": obj.show_overlay_button,
-            "showCloseButton": obj.show_close_button
-        }
+    def get_popup_obj(self, obj):
+        if obj.popup_obj:
+            return PopupDataSerializer(obj.popup_obj).data
+        return None
+
+    def get_bbox(self, obj):
+        if obj.bbox:
+            return BboxSerializer(obj.bbox).data
+        return None
+
+    def get_pauseVideo(self, obj):
+        return obj.pause_video
 
     def get_data(self, obj):
         queryset = PopupCarouselMapping.objects.filter(
@@ -72,7 +96,6 @@ class PopupDataSerializer(serializers.ModelSerializer):
         button_list = [row.media for row in queryset if row.media]
         data = MediaSerializers(button_list, many=True).data
         return data
-        return []
 
 
 class SeekToDataSerializer(serializers.ModelSerializer):
@@ -107,7 +130,7 @@ class ActionSerializer(serializers.ModelSerializer):
     def get_data(self, obj):
         action_type = obj.action_id.tag if obj.action_id else None
         if action_type == "openPopup":
-            return PopupDataSerializer(obj.popup_id).data
+            return PopupInstanceSerializer(obj.popup_id).data
         elif action_type == "seekTo":
             return SeekToDataSerializer(obj.seekto_id).data
         elif action_type == "download":

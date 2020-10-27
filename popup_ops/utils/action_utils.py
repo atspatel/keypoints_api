@@ -16,6 +16,8 @@ from utils.video_utils import create_video_obj_from_file
 from utils.text_utils import text_to_query
 from utils.storage_utils import get_full_path
 
+from popup_ops.utils.popup_utils import get_popup_instance_obj
+
 
 def validate_bbox(top, left, width, height):
     if top != None and left != None and width != None and height != None:
@@ -40,55 +42,10 @@ def create_action_object(action, action_data):
     action_obj = None
     action_id = ActionTag.objects.filter(key=text_to_query(action)).first()
     if action == "openPopup":
-        popup_info = action_data.get('popup_info', None)
-        if popup_info:
-            popup_type = popup_info.get('popupType', None)
-            bbox = popup_info.get('bbox', {})
-            pause_video = popup_info.get('pauseVideo', True)
-            show_overlay_button = popup_info.get('showOverlayButton', False)
-            show_close_button = popup_info.get('showCloseButton', True)
-            in_duration = popup_info.get('inDuration', 1.0)
-
-            popup_type_obj = PopupTag.objects.filter(
-                key=text_to_query(popup_type)).first()
-            bbox_obj = create_bbox_obj(bbox)
-            popup_obj = PopupData.objects.create(
-                popup_type=popup_type_obj,
-                bbox=bbox_obj,
-                pause_video=pause_video,
-                show_overlay_button=show_overlay_button,
-                show_close_button=show_close_button,
-                in_duration=in_duration
-            )
-
-            if popup_type == "mediaCarousel":
-                media_list = action_data.get('data', [])
-
-                for media in media_list:
-                    media_type = media.get('type', None)
-                    source = media.get('source', None)
-                    if source:
-                        source = get_full_path(source)
-                        index = media.get('index', None)
-                        if media_type == "image":
-                            image_hash = hashlib.md5(
-                                source.encode('utf-8')).hexdigest()
-                            image_obj, _ = ImagesUrl.objects.update_or_create(image_hash=image_hash, defaults={
-                                "image_url": source,
-                                "thumbnail_img": source,
-                                "media_type": 'image/external'})
-                            media_obj = KpMediaInfo.objects.create(
-                                media_type=MEDIA_TYPE_IMAGE, image_url=image_obj)
-
-                            PopupCarouselMapping.objects.update_or_create(
-                                popup_id=popup_obj, media=media_obj, defaults={'index': index})
-
-                    # elif media_type == "video":
-
-                    # elif media_type == "audio":
-
-            action_obj = ActionDataMapping.objects.create(
-                action_id=action_id, popup_id=popup_obj)
+        popup_instance_obj = get_popup_instance_obj(
+            action_data.get('popup_obj', {}))
+        action_obj = ActionDataMapping.objects.create(
+            action_id=action_id, popup_id=popup_instance_obj)
 
     elif action == "seekTo":
         duration = action_data.get('duration', None)

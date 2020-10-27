@@ -119,19 +119,28 @@ class PopupData(AbstractTimeClass):
         PopupTag, null=True, on_delete=models.SET_NULL)
     aspect_ratio = models.ForeignKey(
         AspectRatio, default=AspectRatio.get_default_ratio(), on_delete=models.SET_DEFAULT)
-    bbox = models.ForeignKey(Bbox, null=True, on_delete=models.SET_NULL)
-    pause_video = models.BooleanField(default=True)
     show_overlay_button = models.BooleanField(default=False)
     show_close_button = models.BooleanField(default=True)
     in_duration = models.FloatField(default=1.0)
 
     def __str__(self):
-        return self.name
+        return str(self.id)
+
+
+class PopupInstance(AbstractTimeClass):
+    name = models.TextField(null=True)
+    popup_obj = models.ForeignKey(
+        PopupData, null=True, on_delete=models.CASCADE)
+    bbox = models.ForeignKey(Bbox, null=True, on_delete=models.SET_NULL)
+    pause_video = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name if self.name else str(self.id)
 
 
 class PopupCarouselMapping(AbstractTimeClass):
     popup_id = models.ForeignKey(
-        PopupData, null=True, on_delete=models.SET_NULL)
+        PopupInstance, null=True, on_delete=models.SET_NULL)
     media = models.ForeignKey(KpMediaInfo, null=True,
                               on_delete=models.SET_NULL)
     index = models.IntegerField(default=999)
@@ -148,7 +157,7 @@ class ActionDataMapping(AbstractTimeClass):
     seekto_id = models.ForeignKey(
         SeekToData, null=True, on_delete=models.CASCADE)
     popup_id = models.ForeignKey(
-        PopupData, null=True, on_delete=models.CASCADE)
+        PopupInstance, null=True, on_delete=models.CASCADE)
 
 
 class ButtonData(AbstractTimeClass):

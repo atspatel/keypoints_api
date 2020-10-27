@@ -7,7 +7,7 @@ app = apps.get_app_config('popup_ops')
 
 
 class PopupCarouselMappingAdmin(admin.ModelAdmin):
-    list_display = ['id', 'creation_date']
+    list_display = ['id', 'popup_id', 'creation_date']
 
 
 admin.site.register(PopupCarouselMapping, PopupCarouselMappingAdmin)

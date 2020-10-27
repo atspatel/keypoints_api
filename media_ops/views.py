@@ -19,5 +19,4 @@ class ImageView(APIView):
             image_object = upload_image(image, user=None)
             if image_object:
                 image_url = image_object.image_url
-        print(image_url, image_object.id)
         return Response({'status': True, "image_url": image_url})
