@@ -9,7 +9,7 @@ from utils.storage_utils import get_full_path
 from constants import *
 from media_ops.models import VideoUrl, AudioUrl
 
-from popup_ops.action_utils import create_media_object
+from popup_ops.utils.media_utils import create_media_object
 
 import hashlib
 video_source = "KeyPoints"
